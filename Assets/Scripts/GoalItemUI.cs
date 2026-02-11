@@ -8,7 +8,7 @@ public class GoalItemUI : MonoBehaviour
     public TextMeshProUGUI amountText;
 
     BoardManager.GoalData goal;
-    public BoardManager board;
+    public BoardManager board; 
 
     public void Setup(BoardManager.GoalData goalData)
     {
@@ -21,7 +21,6 @@ public class GoalItemUI : MonoBehaviour
 
         Refresh();
     }
-
 
     public void Refresh()
     {

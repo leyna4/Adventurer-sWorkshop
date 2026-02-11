@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 public class Tile : MonoBehaviour,
     IPointerDownHandler,
     IBeginDragHandler,
-    IDragHandler,          // <<< EKLENDÝ
+    IDragHandler,         
     IEndDragHandler
 {
     public int tileType;
@@ -26,6 +26,7 @@ public class Tile : MonoBehaviour,
     public bool isSpecialItem = false;
 
     public Sprite[] tileSprites;
+
 
     Vector2 dragStartPos;
 
@@ -63,7 +64,7 @@ public class Tile : MonoBehaviour,
 
     public void OnDrag(PointerEventData eventData)
     {
-        // boþ býrakýyoruz ama gerekli
+        
     }
 
     public void OnEndDrag(PointerEventData eventData)

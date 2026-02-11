@@ -93,6 +93,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 3848763318543783691}
   amountText: {fileID: 5231624616913500256}
+  board: {fileID: 0}
 --- !u!114 &7902327754192714459
 MonoBehaviour:
   m_ObjectHideFlags: 0
