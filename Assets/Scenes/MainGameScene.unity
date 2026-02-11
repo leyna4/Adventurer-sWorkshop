@@ -556,8 +556,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -0.687, y: -6.984}
+  m_SizeDelta: {x: 634.447, y: 536.392}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &791525870
 MonoBehaviour:
@@ -572,7 +572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.2784314}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1254,19 +1254,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c39d6a051d10fa408d66b4e2103735b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetTileType: 0
-  targetAmount: 3
-  collectedAmount: 0
+  tileSprites:
+  - {fileID: 21300000, guid: 2b90e3c7527f12b459ab61df70c75928, type: 3}
+  - {fileID: 21300000, guid: 66eb32c73d649cd4f9fbd5f3e032498f, type: 3}
+  - {fileID: 21300000, guid: 7749c9af80374474d81a825109302130, type: 3}
+  - {fileID: 21300000, guid: 0e00e22c2302c4c429576e0e04ff4834, type: 3}
+  - {fileID: 21300000, guid: 5938bd5d018267a45aa0962f00fbabe7, type: 3}
   goals:
-  - tileType: 0
+  - goalSprite: {fileID: 21300000, guid: b589bf37f3998bf44af5a8ee6415c3a0, type: 3}
     targetAmount: 1
     collectedAmount: 0
-  - tileType: 1
+    matchColorType: 4
+  - goalSprite: {fileID: 21300000, guid: 7f522e5c71cc833449698c145069233f, type: 3}
     targetAmount: 1
     collectedAmount: 0
-  - tileType: 2
+    matchColorType: 0
+  - goalSprite: {fileID: 21300000, guid: 2bd21b175b95d2b43bc0ad892944aac2, type: 3}
     targetAmount: 1
     collectedAmount: 0
+    matchColorType: 2
+  specialItemSprites:
+  - {fileID: 21300000, guid: 7f522e5c71cc833449698c145069233f, type: 3}
+  - {fileID: 21300000, guid: 2b4b620cb7bba774ba44e59fe5255972, type: 3}
+  - {fileID: 21300000, guid: 2bd21b175b95d2b43bc0ad892944aac2, type: 3}
+  specialItemCount: 3
   moveLimit: 20
   movesLeft: 0
   width: 7

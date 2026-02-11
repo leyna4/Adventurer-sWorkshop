@@ -36,7 +36,9 @@ public class OrderUI : MonoBehaviour
         {
             GameObject item = Instantiate(goalItemPrefab, goalContainer);
             GoalItemUI ui = item.GetComponent<GoalItemUI>();
+            ui.board = board;
             ui.Setup(goal);
+
             goalUIs.Add(ui);
         }
     }
