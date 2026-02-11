@@ -44,6 +44,8 @@ public class GameFlowManager : MonoBehaviour
     [TextArea] public string response1;
     [TextArea] public string response2;
 
+    
+
     void Start()
     {
         StartCoroutine(CustomerSequence());
@@ -67,6 +69,7 @@ public class GameFlowManager : MonoBehaviour
 
         ShowChoices();
     }
+
 
     void ShowChoices()
     {
@@ -171,4 +174,6 @@ public class GameFlowManager : MonoBehaviour
         match3Area.SetActive(false);
         ShowDialogue("Hamlelerin bitti!");
     }
+    
+
 }
