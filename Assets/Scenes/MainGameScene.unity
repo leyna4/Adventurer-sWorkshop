@@ -1269,10 +1269,6 @@ MonoBehaviour:
     targetAmount: 1
     collectedAmount: 0
     matchColorType: 0
-  - goalSprite: {fileID: 21300000, guid: 2bd21b175b95d2b43bc0ad892944aac2, type: 3}
-    targetAmount: 1
-    collectedAmount: 0
-    matchColorType: 2
   specialItemSprites:
   - {fileID: 21300000, guid: 7f522e5c71cc833449698c145069233f, type: 3}
   - {fileID: 21300000, guid: 2b4b620cb7bba774ba44e59fe5255972, type: 3}
