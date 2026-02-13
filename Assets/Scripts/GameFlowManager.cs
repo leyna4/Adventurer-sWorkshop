@@ -3,9 +3,22 @@ using UnityEngine.UI;
 using System.Collections;
 using TMPro;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameFlowManager : MonoBehaviour
 {
+    [Header("Level Complete UI")]
+    public GameObject levelCompletePanel;
+    public Button retryButton;
+    public Button nextLevelButton;
+
+    [Header("Lose UI")]
+    public GameObject losePanel;
+    public Button loseRetryButton;
+
+    int currentLevel = 1;
+    bool levelFinished = false;
+
     [Header("References")]
     public BoardManager board;
 
@@ -49,13 +62,61 @@ public class GameFlowManager : MonoBehaviour
     public int levelReward = 50;
 
     [Header("Coin UI")]
-    public TextMeshProUGUI coinText;   // Üstteki coin yazýsý
+    public TextMeshProUGUI coinText;
+
+   
+
+    [System.Serializable]
+    public class CustomerData
+    {
+        [TextArea] public string intro1;
+        [TextArea] public string intro2;
+        public Sprite customerSprite;
+        public Sprite brokenSprite;
+        public Sprite repairedSprite;
+    }
+
+    [Header("Customers")]
+    public List<CustomerData> customers = new List<CustomerData>();
+    public Image customerImage;  
+
 
     void Start()
     {
-        UpdateCoinUI(); // Baþlangýçta coin göster
+        UpdateCoinUI();
+
+        retryButton.onClick.AddListener(RestartLevel);
+        nextLevelButton.onClick.AddListener(NextLevel);
+        loseRetryButton.onClick.AddListener(RestartLevel);
+
+        LoadCustomer(currentLevel - 1);  
+
         StartCoroutine(CustomerSequence());
     }
+
+ 
+
+    void LoadCustomer(int index)
+    {
+        if (customers.Count == 0)
+            return;
+
+        if (index >= customers.Count)
+            index = 0;
+
+        CustomerData data = customers[index];
+
+
+        introLine1 = data.intro1;
+        introLine2 = data.intro2;
+
+        brokenItemSprite = data.brokenSprite;
+        repairedItemSprite = data.repairedSprite;
+        if (customerImage != null)
+            customerImage.sprite = data.customerSprite;
+    }
+
+    
 
     IEnumerator CustomerSequence()
     {
@@ -94,10 +155,7 @@ public class GameFlowManager : MonoBehaviour
     {
         choicesContainer.SetActive(false);
 
-        if (choice == 1)
-            dialogueText.text = response1;
-        else
-            dialogueText.text = response2;
+        dialogueText.text = (choice == 1) ? response1 : response2;
 
         StartCoroutine(StartGameplayAfterDialogue());
     }
@@ -135,14 +193,28 @@ public class GameFlowManager : MonoBehaviour
     void Update()
     {
         foreach (var goalUI in activeGoals)
-        {
             goalUI.Refresh();
-        }
     }
 
     public void OnLevelCompleted()
     {
+        if (levelFinished) return;
+        levelFinished = true;
+
         StartCoroutine(FinishSequence());
+    }
+    IEnumerator HideCustomerSequence()
+    {
+        
+        yield return new WaitForSeconds(0.5f);
+
+        if (customerVisual != null)
+            customerVisual.SetActive(false);
+
+        if (itemImage != null)
+            itemImage.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(0.5f);
     }
 
     IEnumerator FinishSequence()
@@ -157,20 +229,21 @@ public class GameFlowManager : MonoBehaviour
 
         HideDialogue();
 
-        // Coin ekle
+       
+        yield return StartCoroutine(HideCustomerSequence());
+
         AddCoins(levelReward);
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
 
-        customerVisual.SetActive(false);
-        itemImage.gameObject.SetActive(false);
+        levelCompletePanel.SetActive(true);
     }
+
 
     void AddCoins(int amount)
     {
         playerCoins += amount;
         UpdateCoinUI();
-        Debug.Log("Toplam Coin: " + playerCoins);
     }
 
     void UpdateCoinUI()
@@ -178,6 +251,35 @@ public class GameFlowManager : MonoBehaviour
         if (coinText != null)
             coinText.text = playerCoins.ToString();
     }
+
+    void RestartLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    
+    
+
+    void NextLevel()
+    {
+        levelCompletePanel.SetActive(false);
+
+        levelFinished = false;
+
+        currentLevel++;
+
+        LoadCustomer(currentLevel - 1);   
+
+                
+
+        board.ResetBoardForNextLevel();
+
+        SetupGoalUI();
+
+        StartCoroutine(CustomerSequence());
+    }
+
+    
 
     void ShowDialogue(string message)
     {
@@ -192,7 +294,23 @@ public class GameFlowManager : MonoBehaviour
 
     public void OnOutOfMoves()
     {
-        match3Area.SetActive(false);
-        ShowDialogue("Hamlelerin bitti!");
+        if (levelFinished) return;
+
+        StartCoroutine(LoseSequence());
     }
+
+    IEnumerator LoseSequence()
+    {
+        match3Area.SetActive(false);
+        specialPanel.SetActive(false);
+
+        dialogueBox.SetActive(false);
+        choicesContainer.SetActive(false);
+
+        
+        yield return StartCoroutine(HideCustomerSequence());
+
+        losePanel.SetActive(true);
+    }
+
 }

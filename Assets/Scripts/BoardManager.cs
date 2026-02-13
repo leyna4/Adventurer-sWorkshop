@@ -154,11 +154,13 @@ public class BoardManager : MonoBehaviour
 
         if (!isReverting)
         {
+           
+            movesLeft--;
+            UpdateMovesUI();
+            CheckOutOfMoves();
+
             if (HasMatch())
             {
-                movesLeft--;
-                UpdateMovesUI();
-                CheckOutOfMoves();
                 CheckMatches();
             }
             else
@@ -166,6 +168,7 @@ public class BoardManager : MonoBehaviour
                 StartCoroutine(RevertSwap(a, b));
             }
         }
+
     }
 
     IEnumerator RevertSwap(Tile a, Tile b)
@@ -438,4 +441,25 @@ public class BoardManager : MonoBehaviour
             FindObjectOfType<GameFlowManager>().OnOutOfMoves();
         }
     }
+    public void ResetBoardForNextLevel()
+    {
+        
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++)
+                if (tiles[x, y] != null)
+                    Destroy(tiles[x, y].gameObject);
+
+       
+        foreach (GoalData goal in goals)
+            goal.collectedAmount = 0;
+
+        
+        movesLeft = moveLimit;
+        UpdateMovesUI();
+
+        
+        GenerateBoard();
+        PlaceSpecialItems();
+    }
+
 }
