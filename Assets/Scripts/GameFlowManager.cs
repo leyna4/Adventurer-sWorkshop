@@ -44,10 +44,16 @@ public class GameFlowManager : MonoBehaviour
     [TextArea] public string response1;
     [TextArea] public string response2;
 
-    
+    [Header("Coin System")]
+    public int playerCoins = 0;
+    public int levelReward = 50;
+
+    [Header("Coin UI")]
+    public TextMeshProUGUI coinText;   // Üstteki coin yazýsý
 
     void Start()
     {
+        UpdateCoinUI(); // Baþlangýçta coin göster
         StartCoroutine(CustomerSequence());
     }
 
@@ -69,7 +75,6 @@ public class GameFlowManager : MonoBehaviour
 
         ShowChoices();
     }
-
 
     void ShowChoices()
     {
@@ -143,19 +148,35 @@ public class GameFlowManager : MonoBehaviour
     IEnumerator FinishSequence()
     {
         match3Area.SetActive(false);
+        specialPanel.SetActive(false);
 
         itemImage.sprite = repairedItemSprite;
 
         ShowDialogue("Harika olmuþ! Çok teþekkür ederim!");
         yield return new WaitForSeconds(2f);
 
-        ShowDialogue("+50 Coin");
-        yield return new WaitForSeconds(1.5f);
-
         HideDialogue();
+
+        // Coin ekle
+        AddCoins(levelReward);
+
+        yield return new WaitForSeconds(1f);
 
         customerVisual.SetActive(false);
         itemImage.gameObject.SetActive(false);
+    }
+
+    void AddCoins(int amount)
+    {
+        playerCoins += amount;
+        UpdateCoinUI();
+        Debug.Log("Toplam Coin: " + playerCoins);
+    }
+
+    void UpdateCoinUI()
+    {
+        if (coinText != null)
+            coinText.text = playerCoins.ToString();
     }
 
     void ShowDialogue(string message)
@@ -174,6 +195,4 @@ public class GameFlowManager : MonoBehaviour
         match3Area.SetActive(false);
         ShowDialogue("Hamlelerin bitti!");
     }
-    
-
 }

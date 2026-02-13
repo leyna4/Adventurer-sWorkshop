@@ -231,6 +231,8 @@ public class BoardManager : MonoBehaviour
                 {
                     if (a.tileType == b.tileType &&
                         b.tileType == c.tileType)
+                        
+
                     {
                         if (!matchedTiles.Contains(a)) matchedTiles.Add(a);
                         if (!matchedTiles.Contains(b)) matchedTiles.Add(b);
@@ -252,7 +254,9 @@ public class BoardManager : MonoBehaviour
                 if (a != null && b != null && c != null)
                 {
                     if (a.tileType == b.tileType &&
-                        b.tileType == c.tileType)
+                        b.tileType == c.tileType )
+                        
+
                     {
                         if (!matchedTiles.Contains(a)) matchedTiles.Add(a);
                         if (!matchedTiles.Contains(b)) matchedTiles.Add(b);
@@ -295,8 +299,10 @@ public class BoardManager : MonoBehaviour
                     if (neighbor.iceHitPoints <= 0)
                     {
                         neighbor.hasIce = false;
+                        neighbor.iceJustBroken = true;
                         neighbor.iceOverlay.gameObject.SetActive(false);
                     }
+
                 }
             }
         }
@@ -318,34 +324,30 @@ public class BoardManager : MonoBehaviour
         {
             if (tile == null) continue;
 
-            
+
             if (tile.isSpecialItem)
             {
                 
                 if (tile.hasIce)
+                    continue;
+
+                
+                if (tile.iceJustBroken)
                 {
-                    tile.iceHitPoints--;
-
-                    if (tile.iceHitPoints <= 0)
-                    {
-                        tile.hasIce = false;
-                        tile.iceOverlay.gameObject.SetActive(false);
-                    }
-
-                    continue; 
-                }
-                else
-                {
-                    
-                    TryCollectTile(tile);
-
-                    tiles[tile.x, tile.y] = null;
-                    Destroy(tile.gameObject);
+                    tile.iceJustBroken = false;
                     continue;
                 }
+
+                
+                TryCollectTile(tile);
+
+                tiles[tile.x, tile.y] = null;
+                Destroy(tile.gameObject);
+                continue;
             }
 
-            
+
+
             tiles[tile.x, tile.y] = null;
             Destroy(tile.gameObject);
         }

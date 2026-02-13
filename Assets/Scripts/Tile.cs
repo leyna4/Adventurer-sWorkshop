@@ -26,6 +26,7 @@ public class Tile : MonoBehaviour,
     public bool isSpecialItem = false;
 
     public Sprite[] tileSprites;
+    public bool iceJustBroken = false;
 
 
     Vector2 dragStartPos;
