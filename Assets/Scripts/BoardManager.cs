@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using TMPro;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class BoardManager : MonoBehaviour
 {
@@ -21,10 +20,8 @@ public class BoardManager : MonoBehaviour
         public int matchColorType;
     }
 
-    [Header("Multi Goals")]
     public List<GoalData> goals = new List<GoalData>();
 
-    [Header("Moves")]
     public int moveLimit = 20;
     public int movesLeft;
 
@@ -40,6 +37,8 @@ public class BoardManager : MonoBehaviour
 
     [HideInInspector] public int currentLevel = 1;
 
+    bool isProcessingMatches = false;
+
     void Start()
     {
         movesLeft = moveLimit;
@@ -47,6 +46,55 @@ public class BoardManager : MonoBehaviour
         GenerateBoard();
         PlaceSpecialItems();
     }
+
+    // =========================
+    // LEVEL SETUP (IMPORTANT)
+    // =========================
+
+    public void SetGoals(List<GameFlowManager.LevelGoal> levelGoals, int moveLimitFromLevel)
+    {
+        goals.Clear();
+
+        foreach (var lg in levelGoals)
+        {
+            GoalData newGoal = new GoalData();
+            newGoal.goalSprite = lg.goalSprite;
+            newGoal.targetAmount = lg.targetAmount;
+            newGoal.collectedAmount = 0;
+            newGoal.matchColorType = lg.matchColorID;
+
+            goals.Add(newGoal);
+        }
+
+        moveLimit = moveLimitFromLevel;
+        movesLeft = moveLimit;
+
+        UpdateMovesUI();
+    }
+
+    public void ResetBoardForNextLevel()
+    {
+        if (tiles != null)
+        {
+            for (int x = 0; x < width; x++)
+                for (int y = 0; y < height; y++)
+                    if (tiles[x, y] != null)
+                        Destroy(tiles[x, y].gameObject);
+        }
+
+        foreach (GoalData goal in goals)
+            goal.collectedAmount = 0;
+
+        movesLeft = moveLimit;
+        UpdateMovesUI();
+
+        GenerateBoard();
+        PlaceSpecialItems();
+    }
+
+    // =========================
+    // UI
+    // =========================
 
     void UpdateMovesUI()
     {
@@ -66,6 +114,10 @@ public class BoardManager : MonoBehaviour
         );
     }
 
+    // =========================
+    // BOARD GENERATION
+    // =========================
+
     void GenerateBoard()
     {
         tiles = new Tile[width, height];
@@ -77,14 +129,9 @@ public class BoardManager : MonoBehaviour
                 GameObject obj = Instantiate(tilePrefab, transform);
                 Tile tile = obj.GetComponent<Tile>();
 
-                int randomType;
-                do
-                {
-                    randomType = Random.Range(0, 5);
-                }
-                while (CreatesMatchAt(x, y, randomType));
+                tile.tileSprites = tileSprites;
+                tile.SetType(Random.Range(0, 5));
 
-                tile.SetType(randomType);
                 obj.transform.localPosition = GetWorldPosition(x, y);
 
                 tiles[x, y] = tile;
@@ -97,34 +144,9 @@ public class BoardManager : MonoBehaviour
 
     void PlaceSpecialItems()
     {
-        if (goals.Count == 0)
-            return;
-
-        List<int> iceIndexes = new List<int>();
-
-       
-        if (currentLevel >= 4)
+        foreach (var goal in goals)
         {
-            int iceCount = Mathf.CeilToInt(goals.Count * 0.5f);
-
-            List<int> availableIndexes = new List<int>();
-            for (int i = 0; i < goals.Count; i++)
-                availableIndexes.Add(i);
-
-            for (int i = 0; i < iceCount; i++)
-            {
-                int randomIndex = Random.Range(0, availableIndexes.Count);
-                iceIndexes.Add(availableIndexes[randomIndex]);
-                availableIndexes.RemoveAt(randomIndex);
-            }
-        }
-
-        
-        for (int i = 0; i < goals.Count; i++)
-        {
-            int spawnCount = goals[i].targetAmount;
-
-            for (int s = 0; s < spawnCount; s++)
+            for (int s = 0; s < goal.targetAmount; s++)
             {
                 int x, y;
 
@@ -137,55 +159,22 @@ public class BoardManager : MonoBehaviour
 
                 Tile tile = tiles[x, y];
 
-                tile.SetType(goals[i].matchColorType);
-                tile.image.sprite = goals[i].goalSprite;
-
+                tile.SetType(goal.matchColorType);
+                tile.image.sprite = goal.goalSprite;
                 tile.isSpecialItem = true;
-                tile.isCollectible = true;
-
-                tile.hasIce = false;
-                tile.iceJustBroken = false;
-
-                if (tile.iceOverlay != null)
-                    tile.iceOverlay.gameObject.SetActive(false);
-
-                
-                if (iceIndexes.Contains(i))
-                {
-                    tile.SetIce(3); 
-                }
             }
         }
     }
 
-
-
-
-    bool CreatesMatchAt(int x, int y, int type)
-    {
-        if (x >= 2)
-        {
-            if (tiles[x - 1, y] != null &&
-                tiles[x - 2, y] != null &&
-                tiles[x - 1, y].tileType == type &&
-                tiles[x - 2, y].tileType == type)
-                return true;
-        }
-
-        if (y >= 2)
-        {
-            if (tiles[x, y - 1] != null &&
-                tiles[x, y - 2] != null &&
-                tiles[x, y - 1].tileType == type &&
-                tiles[x, y - 2].tileType == type)
-                return true;
-        }
-
-        return false;
-    }
+    // =========================
+    // SWAP
+    // =========================
 
     public void SwapTiles(Tile a, Tile b, bool isReverting = false)
     {
+        if (movesLeft <= 0 && !isReverting)
+            return;
+
         tiles[a.x, a.y] = b;
         tiles[b.x, b.y] = a;
 
@@ -203,21 +192,15 @@ public class BoardManager : MonoBehaviour
 
         if (!isReverting)
         {
-           
             movesLeft--;
+            if (movesLeft < 0) movesLeft = 0;
             UpdateMovesUI();
-            CheckOutOfMoves();
 
             if (HasMatch())
-            {
                 CheckMatches();
-            }
             else
-            {
                 StartCoroutine(RevertSwap(a, b));
-            }
         }
-
     }
 
     IEnumerator RevertSwap(Tile a, Tile b)
@@ -225,6 +208,10 @@ public class BoardManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         SwapTiles(a, b, true);
     }
+
+    // =========================
+    // MATCH CHECK
+    // =========================
 
     bool HasMatch()
     {
@@ -238,192 +225,120 @@ public class BoardManager : MonoBehaviour
 
     bool CheckMatchAt(int x, int y)
     {
-        Tile tile = tiles[x, y];
-        if (tile == null) return false;
+        if (tiles[x, y] == null) return false;
 
-        int matchType = tile.tileType;
+        int type = tiles[x, y].tileType;
 
         int horizontal = 1;
-
-        if (x > 0 && tiles[x - 1, y] != null && tiles[x - 1, y].tileType == matchType)
-            horizontal++;
-        if (x < width - 1 && tiles[x + 1, y] != null && tiles[x + 1, y].tileType == matchType)
-            horizontal++;
-
-        if (horizontal >= 3)
-            return true;
+        if (x > 0 && tiles[x - 1, y] != null && tiles[x - 1, y].tileType == type) horizontal++;
+        if (x < width - 1 && tiles[x + 1, y] != null && tiles[x + 1, y].tileType == type) horizontal++;
+        if (horizontal >= 3) return true;
 
         int vertical = 1;
-
-        if (y > 0 && tiles[x, y - 1] != null && tiles[x, y - 1].tileType == matchType)
-            vertical++;
-        if (y < height - 1 && tiles[x, y + 1] != null && tiles[x, y + 1].tileType == matchType)
-            vertical++;
-
-        if (vertical >= 3)
-            return true;
-
-        return false;
+        if (y > 0 && tiles[x, y - 1] != null && tiles[x, y - 1].tileType == type) vertical++;
+        if (y < height - 1 && tiles[x, y + 1] != null && tiles[x, y + 1].tileType == type) vertical++;
+        return vertical >= 3;
     }
 
     void CheckMatches()
     {
         matchedTiles.Clear();
 
-       
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width - 2; x++)
             {
-                Tile a = tiles[x, y];
-                Tile b = tiles[x + 1, y];
-                Tile c = tiles[x + 2, y];
+                if (tiles[x, y] == null ||
+                    tiles[x + 1, y] == null ||
+                    tiles[x + 2, y] == null)
+                    continue;
 
-                if (a != null && b != null && c != null)
+                int type = tiles[x, y].tileType;
+
+                if (tiles[x + 1, y].tileType == type &&
+                    tiles[x + 2, y].tileType == type)
                 {
-                    if (a.tileType == b.tileType &&
-                        b.tileType == c.tileType)
-                        
-
-                    {
-                        if (!matchedTiles.Contains(a)) matchedTiles.Add(a);
-                        if (!matchedTiles.Contains(b)) matchedTiles.Add(b);
-                        if (!matchedTiles.Contains(c)) matchedTiles.Add(c);
-                    }
+                    matchedTiles.Add(tiles[x, y]);
+                    matchedTiles.Add(tiles[x + 1, y]);
+                    matchedTiles.Add(tiles[x + 2, y]);
                 }
             }
         }
 
-        
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height - 2; y++)
             {
-                Tile a = tiles[x, y];
-                Tile b = tiles[x, y + 1];
-                Tile c = tiles[x, y + 2];
+                if (tiles[x, y] == null ||
+                    tiles[x, y + 1] == null ||
+                    tiles[x, y + 2] == null)
+                    continue;
 
-                if (a != null && b != null && c != null)
+                int type = tiles[x, y].tileType;
+
+                if (tiles[x, y + 1].tileType == type &&
+                    tiles[x, y + 2].tileType == type)
                 {
-                    if (a.tileType == b.tileType &&
-                        b.tileType == c.tileType )
-                        
-
-                    {
-                        if (!matchedTiles.Contains(a)) matchedTiles.Add(a);
-                        if (!matchedTiles.Contains(b)) matchedTiles.Add(b);
-                        if (!matchedTiles.Contains(c)) matchedTiles.Add(c);
-                    }
+                    matchedTiles.Add(tiles[x, y]);
+                    matchedTiles.Add(tiles[x, y + 1]);
+                    matchedTiles.Add(tiles[x, y + 2]);
                 }
             }
         }
 
-        ClearMatches();
+        if (matchedTiles.Count > 0)
+            StartCoroutine(ClearMatchesRoutine());
+        else
+            CheckLoseCondition();
     }
 
-
-    void DamageAdjacentSpecialTiles(Tile matchedTile)
+    IEnumerator ClearMatchesRoutine()
     {
-        Vector2Int[] directions =
-        {
-        new Vector2Int(1,0),
-        new Vector2Int(-1,0),
-        new Vector2Int(0,1),
-        new Vector2Int(0,-1)
-    };
+        isProcessingMatches = true;
 
-        foreach (var dir in directions)
-        {
-            int nx = matchedTile.x + dir.x;
-            int ny = matchedTile.y + dir.y;
-
-            if (nx >= 0 && nx < width && ny >= 0 && ny < height)
-            {
-                Tile neighbor = tiles[nx, ny];
-
-                if (neighbor != null &&
-                    neighbor.isSpecialItem &&
-                    neighbor.hasIce &&
-                    neighbor.tileType == matchedTile.tileType)
-                {
-                    neighbor.iceHitPoints--;
-
-                    if (neighbor.iceHitPoints <= 0)
-                    {
-                        neighbor.hasIce = false;
-                        neighbor.iceJustBroken = true;
-                        neighbor.iceOverlay.gameObject.SetActive(false);
-                    }
-
-                }
-            }
-        }
-    }
-
-
-    void ClearMatches()
-    {
-        if (matchedTiles.Count == 0) return;
-
-        
-        foreach (Tile tile in matchedTiles)
-        {
-            if (tile != null)
-                DamageAdjacentSpecialTiles(tile);
-        }
+        yield return new WaitForSeconds(0.15f);
 
         foreach (Tile tile in matchedTiles)
         {
             if (tile == null) continue;
 
-
             if (tile.isSpecialItem)
             {
-                
-                if (tile.hasIce)
-                    continue;
-
-                
-                if (tile.iceJustBroken)
+                foreach (var goal in goals)
                 {
-                    tile.iceJustBroken = false;
-                    continue;
+                    if (goal.matchColorType == tile.tileType)
+                    {
+                        goal.collectedAmount++;
+                        break;
+                    }
                 }
-
-                
-                TryCollectTile(tile);
-
-                tiles[tile.x, tile.y] = null;
-                Destroy(tile.gameObject);
-                continue;
             }
 
+            int x = tile.x;
+            int y = tile.y;
 
+            tiles[x, y] = null;
 
-            tiles[tile.x, tile.y] = null;
-            Destroy(tile.gameObject);
+            yield return StartCoroutine(tile.PlayDestroyAnimation());
+
+            if (tile != null)
+                Destroy(tile.gameObject);
         }
+
+        matchedTiles.Clear();
+
+        yield return new WaitForSeconds(0.1f);
 
         ApplyGravity();
+        yield return new WaitForSeconds(0.1f);
+
         SpawnNewTiles();
-        CheckMatches();
-    }
+        yield return new WaitForSeconds(0.2f);
 
+        isProcessingMatches = false;
 
-    void TryCollectTile(Tile tile)
-    {
-        if (!tile.isSpecialItem) return;
-
-        foreach (GoalData goal in goals)
-        {
-            if (goal.matchColorType == tile.tileType &&
-                goal.collectedAmount < goal.targetAmount)
-            {
-                goal.collectedAmount++;
-                CheckLevelComplete();
-                return;
-            }
-        }
+        CheckLevelComplete();
+        CheckLoseCondition();
     }
 
     void ApplyGravity()
@@ -462,7 +377,9 @@ public class BoardManager : MonoBehaviour
                     GameObject obj = Instantiate(tilePrefab, transform);
                     Tile tile = obj.GetComponent<Tile>();
 
+                    tile.tileSprites = tileSprites;
                     tile.SetType(Random.Range(0, 5));
+
                     obj.transform.localPosition = GetWorldPosition(x, y);
 
                     tiles[x, y] = tile;
@@ -476,60 +393,26 @@ public class BoardManager : MonoBehaviour
 
     void CheckLevelComplete()
     {
-        foreach (GoalData goal in goals)
+        foreach (var goal in goals)
+        {
             if (goal.collectedAmount < goal.targetAmount)
                 return;
+        }
 
         FindObjectOfType<GameFlowManager>().OnLevelCompleted();
     }
 
-    void CheckOutOfMoves()
+    void CheckLoseCondition()
     {
-        if (movesLeft <= 0)
+        if (movesLeft > 0) return;
+
+        foreach (var goal in goals)
         {
-            FindObjectOfType<GameFlowManager>().OnOutOfMoves();
+            if (goal.collectedAmount < goal.targetAmount)
+            {
+                FindObjectOfType<GameFlowManager>().OnOutOfMoves();
+                return;
+            }
         }
     }
-    public void ResetBoardForNextLevel()
-    {
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-                if (tiles[x, y] != null)
-                    Destroy(tiles[x, y].gameObject);
-
-        foreach (GoalData goal in goals)
-            goal.collectedAmount = 0;
-
-        movesLeft = moveLimit;
-        UpdateMovesUI();
-
-        GenerateBoard();
-
-       
-        PlaceSpecialItems();
-    }
-
-    public void SetGoals(List<GameFlowManager.LevelGoal> newGoals, int newMoveLimit)
-    {
-        goals.Clear();
-
-        foreach (var g in newGoals)
-        {
-            GoalData newGoal = new GoalData();   
-
-            newGoal.goalSprite = g.goalSprite;
-            newGoal.targetAmount = g.targetAmount;
-            newGoal.collectedAmount = 0;
-            newGoal.matchColorType = g.matchColorID; 
-
-            goals.Add(newGoal);
-        }
-
-        moveLimit = newMoveLimit;
-        movesLeft = moveLimit;
-
-        UpdateMovesUI();
-    }
-
-
 }

@@ -64,8 +64,6 @@ public class GameFlowManager : MonoBehaviour
     [Header("Coin UI")]
     public TextMeshProUGUI coinText;
 
-   
-
     [System.Serializable]
     public class CustomerData
     {
@@ -94,6 +92,7 @@ public class GameFlowManager : MonoBehaviour
         public int moveLimit;
         public List<LevelGoal> goals;
     }
+
     [Header("Levels")]
     public List<LevelData> levels = new List<LevelData>();
 
@@ -105,12 +104,34 @@ public class GameFlowManager : MonoBehaviour
         nextLevelButton.onClick.AddListener(NextLevel);
         loseRetryButton.onClick.AddListener(RestartLevel);
 
-        LoadCustomer(currentLevel - 1);  
+        LoadLevel(currentLevel);
+        LoadCustomer(currentLevel - 1);
 
         StartCoroutine(CustomerSequence());
     }
 
- 
+   
+
+    void LoadLevel(int levelIndex)
+    {
+        if (board == null) return;
+        if (levels.Count == 0) return;
+
+        if (levelIndex - 1 >= levels.Count)
+            levelIndex = 1;
+
+        LevelData data = levels[levelIndex - 1];
+
+        board.currentLevel = levelIndex;
+
+        
+        board.SetGoals(data.goals, data.moveLimit);
+
+        
+        board.ResetBoardForNextLevel();
+    }
+
+   
 
     void LoadCustomer(int index)
     {
@@ -122,17 +143,15 @@ public class GameFlowManager : MonoBehaviour
 
         CustomerData data = customers[index];
 
-
         introLine1 = data.intro1;
         introLine2 = data.intro2;
 
         brokenItemSprite = data.brokenSprite;
         repairedItemSprite = data.repairedSprite;
+
         if (customerImage != null)
             customerImage.sprite = data.customerSprite;
     }
-
-    
 
     IEnumerator CustomerSequence()
     {
@@ -170,9 +189,7 @@ public class GameFlowManager : MonoBehaviour
     void OnChoiceSelected(int choice)
     {
         choicesContainer.SetActive(false);
-
         dialogueText.text = (choice == 1) ? response1 : response2;
-
         StartCoroutine(StartGameplayAfterDialogue());
     }
 
@@ -212,25 +229,14 @@ public class GameFlowManager : MonoBehaviour
             goalUI.Refresh();
     }
 
+    
+
     public void OnLevelCompleted()
     {
         if (levelFinished) return;
         levelFinished = true;
 
         StartCoroutine(FinishSequence());
-    }
-    IEnumerator HideCustomerSequence()
-    {
-        
-        yield return new WaitForSeconds(0.5f);
-
-        if (customerVisual != null)
-            customerVisual.SetActive(false);
-
-        if (itemImage != null)
-            itemImage.gameObject.SetActive(false);
-
-        yield return new WaitForSeconds(0.5f);
     }
 
     IEnumerator FinishSequence()
@@ -245,7 +251,6 @@ public class GameFlowManager : MonoBehaviour
 
         HideDialogue();
 
-       
         yield return StartCoroutine(HideCustomerSequence());
 
         AddCoins(levelReward);
@@ -255,6 +260,43 @@ public class GameFlowManager : MonoBehaviour
         levelCompletePanel.SetActive(true);
     }
 
+  
+
+    public void OnOutOfMoves()
+    {
+        if (levelFinished) return;
+
+        levelFinished = true;
+        StartCoroutine(LoseSequence());
+    }
+
+    IEnumerator LoseSequence()
+    {
+        match3Area.SetActive(false);
+        specialPanel.SetActive(false);
+
+        dialogueBox.SetActive(false);
+        choicesContainer.SetActive(false);
+
+        yield return StartCoroutine(HideCustomerSequence());
+
+        losePanel.SetActive(true);
+    }
+
+    IEnumerator HideCustomerSequence()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        if (customerVisual != null)
+            customerVisual.SetActive(false);
+
+        if (itemImage != null)
+            itemImage.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(0.5f);
+    }
+
+    
 
     void AddCoins(int amount)
     {
@@ -268,37 +310,27 @@ public class GameFlowManager : MonoBehaviour
             coinText.text = playerCoins.ToString();
     }
 
+   
+
     void RestartLevel()
     {
         levelFinished = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-
-
-
-
     void NextLevel()
     {
         levelCompletePanel.SetActive(false);
 
         currentLevel++;
-
-        levelFinished = false;  
-
-        board.currentLevel = currentLevel;
-        Debug.Log("Board Level: " + currentLevel);
+        levelFinished = false;
 
         LoadLevel(currentLevel);
-        board.ResetBoardForNextLevel();
+        LoadCustomer(currentLevel - 1);
 
         SetupGoalUI();
         StartCoroutine(CustomerSequence());
     }
-
-
-
-
 
     void ShowDialogue(string message)
     {
@@ -310,40 +342,4 @@ public class GameFlowManager : MonoBehaviour
     {
         dialogueBox.SetActive(false);
     }
-
-    public void OnOutOfMoves()
-    {
-        if (levelFinished) return;
-
-        StartCoroutine(LoseSequence());
-    }
-
-    IEnumerator LoseSequence()
-    {
-        match3Area.SetActive(false);
-        specialPanel.SetActive(false);
-
-        dialogueBox.SetActive(false);
-        choicesContainer.SetActive(false);
-
-        
-        yield return StartCoroutine(HideCustomerSequence());
-
-        losePanel.SetActive(true);
-    }
-    void LoadLevel(int levelIndex)
-    {
-        if (levels.Count == 0)
-            return;
-
-        if (levelIndex - 1 >= levels.Count)
-            levelIndex = 1;
-
-        LevelData data = levels[levelIndex - 1];
-        board.currentLevel = levelIndex;
-
-        board.SetGoals(data.goals, data.moveLimit);
-    }
-
-
 }

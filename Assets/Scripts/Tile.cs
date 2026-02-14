@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections;
 
 public class Tile : MonoBehaviour,
     IPointerDownHandler,
     IBeginDragHandler,
-    IDragHandler,         
+    IDragHandler,
     IEndDragHandler
 {
     public int tileType;
@@ -28,7 +29,6 @@ public class Tile : MonoBehaviour,
     public Sprite[] tileSprites;
     public bool iceJustBroken = false;
 
-
     Vector2 dragStartPos;
 
     void Awake()
@@ -36,9 +36,20 @@ public class Tile : MonoBehaviour,
         hasIce = false;
         iceJustBroken = false;
 
+        if (image == null)
+            image = GetComponent<Image>();
+
+        if (iceOverlay == null)
+            iceOverlay = transform.Find("IceOverlay")?.GetComponent<Image>();
+
         if (iceOverlay != null)
+        {
             iceOverlay.gameObject.SetActive(false);
+            iceOverlay.raycastTarget = false;
+        }
     }
+
+    
 
     public void SetIce(int hitPoints)
     {
@@ -53,35 +64,34 @@ public class Tile : MonoBehaviour,
         }
     }
 
+    public void ClearIce()
+    {
+        hasIce = false;
+        iceHitPoints = 0;
 
-
+        if (iceOverlay != null)
+            iceOverlay.gameObject.SetActive(false);
+    }
 
     public void SetType(int type)
     {
         tileType = type;
-        image.sprite = tileSprites[type];
+
+        if (tileSprites != null && type < tileSprites.Length)
+            image.sprite = tileSprites[type];  
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        Debug.Log("Pointer Down çalýþtý");
-    }
+    public void OnPointerDown(PointerEventData eventData) { }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("Drag baþladý");
         dragStartPos = eventData.position;
     }
 
-    public void OnDrag(PointerEventData eventData)
-    {
-        
-    }
+    public void OnDrag(PointerEventData eventData) { }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        Debug.Log("Drag bitti");
-
         Vector2 dragEndPos = eventData.position;
         Vector2 direction = dragEndPos - dragStartPos;
 
@@ -102,6 +112,23 @@ public class Tile : MonoBehaviour,
             targetY >= 0 && targetY < board.height)
         {
             board.SwapTiles(this, board.tiles[targetX, targetY]);
+        }
+    }
+
+    public IEnumerator PlayDestroyAnimation()
+    {
+        float duration = 0.15f;
+        float elapsed = 0f;
+
+        Vector3 startScale = transform.localScale;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
+            yield return null;
         }
     }
 }
