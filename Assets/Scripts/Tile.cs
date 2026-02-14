@@ -33,18 +33,28 @@ public class Tile : MonoBehaviour,
 
     void Awake()
     {
+        hasIce = false;
+        iceJustBroken = false;
+
         if (iceOverlay != null)
             iceOverlay.gameObject.SetActive(false);
-
-        hasIce = false;
     }
 
-    public void SetIce(int hp)
+    public void SetIce(int hitPoints)
     {
         hasIce = true;
-        iceHitPoints = hp;
-        iceOverlay.gameObject.SetActive(true);
+        iceHitPoints = hitPoints;
+
+        if (iceOverlay != null)
+        {
+            iceOverlay.transform.SetAsLastSibling();
+            iceOverlay.color = Color.white;
+            iceOverlay.gameObject.SetActive(true);
+        }
     }
+
+
+
 
     public void SetType(int type)
     {

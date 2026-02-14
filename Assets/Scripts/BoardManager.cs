@@ -38,6 +38,8 @@ public class BoardManager : MonoBehaviour
 
     List<Tile> matchedTiles = new List<Tile>();
 
+    [HideInInspector] public int currentLevel = 1;
+
     void Start()
     {
         movesLeft = moveLimit;
@@ -95,22 +97,69 @@ public class BoardManager : MonoBehaviour
 
     void PlaceSpecialItems()
     {
+        if (goals.Count == 0)
+            return;
+
+        List<int> iceIndexes = new List<int>();
+
+       
+        if (currentLevel >= 4)
+        {
+            int iceCount = Mathf.CeilToInt(goals.Count * 0.5f);
+
+            List<int> availableIndexes = new List<int>();
+            for (int i = 0; i < goals.Count; i++)
+                availableIndexes.Add(i);
+
+            for (int i = 0; i < iceCount; i++)
+            {
+                int randomIndex = Random.Range(0, availableIndexes.Count);
+                iceIndexes.Add(availableIndexes[randomIndex]);
+                availableIndexes.RemoveAt(randomIndex);
+            }
+        }
+
+        
         for (int i = 0; i < goals.Count; i++)
         {
-            int x = Random.Range(0, width);
-            int y = Random.Range(0, height);
+            int spawnCount = goals[i].targetAmount;
 
-            Tile tile = tiles[x, y];
+            for (int s = 0; s < spawnCount; s++)
+            {
+                int x, y;
 
-            tile.image.sprite = goals[i].goalSprite;
-            tile.tileType = goals[i].matchColorType;
+                do
+                {
+                    x = Random.Range(0, width);
+                    y = Random.Range(0, height);
+                }
+                while (tiles[x, y].isSpecialItem);
 
-            tile.isSpecialItem = true;
-            tile.isCollectible = true;
+                Tile tile = tiles[x, y];
 
-            tile.SetIce(2);
+                tile.SetType(goals[i].matchColorType);
+                tile.image.sprite = goals[i].goalSprite;
+
+                tile.isSpecialItem = true;
+                tile.isCollectible = true;
+
+                tile.hasIce = false;
+                tile.iceJustBroken = false;
+
+                if (tile.iceOverlay != null)
+                    tile.iceOverlay.gameObject.SetActive(false);
+
+                
+                if (iceIndexes.Contains(i))
+                {
+                    tile.SetIce(3); 
+                }
+            }
         }
     }
+
+
+
 
     bool CreatesMatchAt(int x, int y, int type)
     {
@@ -443,23 +492,44 @@ public class BoardManager : MonoBehaviour
     }
     public void ResetBoardForNextLevel()
     {
-        
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
                 if (tiles[x, y] != null)
                     Destroy(tiles[x, y].gameObject);
 
-       
         foreach (GoalData goal in goals)
             goal.collectedAmount = 0;
 
-        
         movesLeft = moveLimit;
         UpdateMovesUI();
 
-        
         GenerateBoard();
+
+       
         PlaceSpecialItems();
     }
+
+    public void SetGoals(List<GameFlowManager.LevelGoal> newGoals, int newMoveLimit)
+    {
+        goals.Clear();
+
+        foreach (var g in newGoals)
+        {
+            GoalData newGoal = new GoalData();   
+
+            newGoal.goalSprite = g.goalSprite;
+            newGoal.targetAmount = g.targetAmount;
+            newGoal.collectedAmount = 0;
+            newGoal.matchColorType = g.matchColorID; 
+
+            goals.Add(newGoal);
+        }
+
+        moveLimit = newMoveLimit;
+        movesLeft = moveLimit;
+
+        UpdateMovesUI();
+    }
+
 
 }

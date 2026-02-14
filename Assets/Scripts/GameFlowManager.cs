@@ -78,8 +78,24 @@ public class GameFlowManager : MonoBehaviour
 
     [Header("Customers")]
     public List<CustomerData> customers = new List<CustomerData>();
-    public Image customerImage;  
+    public Image customerImage;
 
+    [System.Serializable]
+    public class LevelGoal
+    {
+        public Sprite goalSprite;
+        public int targetAmount;
+        public int matchColorID;
+    }
+
+    [System.Serializable]
+    public class LevelData
+    {
+        public int moveLimit;
+        public List<LevelGoal> goals;
+    }
+    [Header("Levels")]
+    public List<LevelData> levels = new List<LevelData>();
 
     void Start()
     {
@@ -254,32 +270,35 @@ public class GameFlowManager : MonoBehaviour
 
     void RestartLevel()
     {
+        levelFinished = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    
-    
+
+
+
 
     void NextLevel()
     {
         levelCompletePanel.SetActive(false);
 
-        levelFinished = false;
-
         currentLevel++;
 
-        LoadCustomer(currentLevel - 1);   
+        levelFinished = false;  
 
-                
+        board.currentLevel = currentLevel;
+        Debug.Log("Board Level: " + currentLevel);
 
+        LoadLevel(currentLevel);
         board.ResetBoardForNextLevel();
 
         SetupGoalUI();
-
         StartCoroutine(CustomerSequence());
     }
 
-    
+
+
+
 
     void ShowDialogue(string message)
     {
@@ -312,5 +331,19 @@ public class GameFlowManager : MonoBehaviour
 
         losePanel.SetActive(true);
     }
+    void LoadLevel(int levelIndex)
+    {
+        if (levels.Count == 0)
+            return;
+
+        if (levelIndex - 1 >= levels.Count)
+            levelIndex = 1;
+
+        LevelData data = levels[levelIndex - 1];
+        board.currentLevel = levelIndex;
+
+        board.SetGoals(data.goals, data.moveLimit);
+    }
+
 
 }
