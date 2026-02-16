@@ -44,7 +44,7 @@ public class BoardManager : MonoBehaviour
         UpdateMovesUI();
         GenerateBoard();
         PlaceSpecialItems();
-        AddIceToBoard();
+        //AddIceToBoard();
     }
 
     #region Setup
@@ -84,7 +84,6 @@ public class BoardManager : MonoBehaviour
             }
         }
 
-        
         tiles = null;
         isSwapping = false;
 
@@ -96,9 +95,7 @@ public class BoardManager : MonoBehaviour
         AddIceToBoard();
         isProcessingMatches = false;
         Debug.Log("Level Started. isSwapping: " + isSwapping);
-
     }
-
 
     void UpdateMovesUI()
     {
@@ -140,6 +137,8 @@ public class BoardManager : MonoBehaviour
         GameObject obj = Instantiate(tilePrefab, transform);
         Tile tile = obj.GetComponent<Tile>();
 
+        tile.hasIce = false;
+        if (tile.iceOverlay != null) tile.iceOverlay.gameObject.SetActive(false);
         tile.tileSprites = tileSprites;
         tile.SetType(Random.Range(0, 5));
 
@@ -157,8 +156,6 @@ public class BoardManager : MonoBehaviour
 
     void PlaceSpecialItems()
     {
-        float iceChance = GetIceChance();
-
         foreach (var goal in goals)
         {
             for (int s = 0; s < goal.targetAmount; s++)
@@ -178,31 +175,25 @@ public class BoardManager : MonoBehaviour
                 tile.image.sprite = goal.goalSprite;
                 tile.isSpecialItem = true;
 
+               
                 if (currentLevel >= 4)
                 {
-                    tile.SetIce(2); 
+                    tile.SetIce(2);
                 }
-
             }
         }
     }
 
     float GetIceChance()
     {
-        if (currentLevel < 4)
-            return 0f;
-
-        if (currentLevel >= 10)
-            return 0.8f;
-
+        if (currentLevel < 4) return 0f;
+        if (currentLevel >= 10) return 0.8f;
         return Mathf.Lerp(0.5f, 0.8f, (currentLevel - 4) / 6f);
     }
 
     #endregion
 
     #region Swap System
-
-    
 
     public void SwapTiles(Tile a, Tile b)
     {
@@ -217,30 +208,23 @@ public class BoardManager : MonoBehaviour
     IEnumerator SwapRoutine(Tile a, Tile b)
     {
         isSwapping = true;
-
-       
         SwapData(a, b);
 
-        
         movesLeft--;
         UpdateMovesUI();
 
         yield return new WaitForSeconds(0.2f);
 
-       
         if (HasMatch())
         {
             yield return StartCoroutine(ProcessMatches());
         }
         else
         {
-            
             SwapData(a, b);
         }
 
-       
         CheckLoseCondition();
-
         isSwapping = false;
     }
 
@@ -261,8 +245,6 @@ public class BoardManager : MonoBehaviour
         a.transform.localPosition = GetWorldPosition(a.x, a.y);
         b.transform.localPosition = GetWorldPosition(b.x, b.y);
     }
-
-    
 
     #endregion
 
@@ -285,7 +267,6 @@ public class BoardManager : MonoBehaviour
 
                 int type = tiles[x, y].tileType;
 
-               
                 if (x < width - 2 &&
                     tiles[x + 1, y] != null &&
                     tiles[x + 2, y] != null &&
@@ -297,7 +278,6 @@ public class BoardManager : MonoBehaviour
                     result.Add(tiles[x + 2, y]);
                 }
 
-                
                 if (y < height - 2 &&
                     tiles[x, y + 1] != null &&
                     tiles[x, y + 2] != null &&
@@ -310,7 +290,6 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
-
         return result;
     }
 
@@ -328,7 +307,7 @@ public class BoardManager : MonoBehaviour
             {
                 if (tile == null) continue;
 
-                
+                // --- BUZ MEKANÝÐÝ BURADA BAÞLIYOR ---
                 if (tile.hasIce)
                 {
                     tile.iceHitPoints--;
@@ -337,11 +316,17 @@ public class BoardManager : MonoBehaviour
                     {
                         tile.ClearIce();
                     }
-
-                    continue; 
+                    else
+                    {
+                        // Buz hala var, görselini güncelle (Tile scriptinde UpdateIceVisual olmalý)
+                        tile.UpdateIceVisual();
+                    }
+                    // Buz varsa taþý yok etmeden sonraki eþleþmeye geç
+                    continue;
                 }
+                // --- BUZ MEKANÝÐÝ BURADA BÝTÝYOR ---
 
-               
+                // Özel eþya toplama (Buz yoksa veya kýrýldýysa buraya ulaþýr)
                 if (tile.isSpecialItem)
                 {
                     foreach (var goal in goals)
@@ -358,12 +343,9 @@ public class BoardManager : MonoBehaviour
                 Destroy(tile.gameObject);
             }
 
-
             yield return new WaitForSeconds(0.1f);
-
             ApplyGravity();
             yield return new WaitForSeconds(0.1f);
-
             SpawnNewTiles();
             yield return new WaitForSeconds(0.2f);
         }
@@ -441,12 +423,12 @@ public class BoardManager : MonoBehaviour
             }
         }
     }
+
     void AddIceToBoard()
     {
         if (currentLevel < 4) return;
 
         float iceRatio = GetIceRatio();
-
         int totalTiles = width * height;
         int iceCount = Mathf.RoundToInt(totalTiles * iceRatio);
 
@@ -456,31 +438,24 @@ public class BoardManager : MonoBehaviour
         while (placed < iceCount && safety < 500)
         {
             safety++;
-
             int x = Random.Range(0, width);
             int y = Random.Range(0, height);
 
             Tile tile = tiles[x, y];
 
-            if (tile == null) continue;
-            if (tile.hasIce) continue;
-            if (tile.isSpecialItem) continue;
+            if (tile == null || tile.hasIce || tile.isSpecialItem) continue;
 
             tile.SetIce(2);
             placed++;
         }
     }
+
     float GetIceRatio()
     {
-        if (currentLevel < 4)
-            return 0f;
-
-        if (currentLevel >= 10)
-            return 0.22f;
-
+        if (currentLevel < 4) return 0f;
+        if (currentLevel >= 10) return 0.22f;
         return Mathf.Lerp(0.08f, 0.22f, (currentLevel - 4) / 6f);
     }
-
 
     #endregion
 }

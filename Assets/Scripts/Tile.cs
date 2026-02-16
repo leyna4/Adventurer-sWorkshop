@@ -33,9 +33,7 @@ public class Tile : MonoBehaviour,
 
     void Awake()
     {
-        hasIce = false;
-        iceJustBroken = false;
-
+        
         if (image == null)
             image = GetComponent<Image>();
 
@@ -43,26 +41,39 @@ public class Tile : MonoBehaviour,
             iceOverlay = transform.Find("IceOverlay")?.GetComponent<Image>();
 
         if (iceOverlay != null)
-        {
-            iceOverlay.gameObject.SetActive(false);
             iceOverlay.raycastTarget = false;
-        }
     }
-
-
 
     public void SetIce(int hitPoints)
     {
         hasIce = true;
         iceHitPoints = hitPoints;
 
+        
+        if (iceOverlay == null)
+            iceOverlay = transform.Find("IceOverlay")?.GetComponent<Image>();
+
         if (iceOverlay != null)
         {
-            iceOverlay.transform.SetAsLastSibling();
+            iceOverlay.gameObject.SetActive(true); 
             iceOverlay.color = Color.white;
-            iceOverlay.gameObject.SetActive(true);
+            iceOverlay.transform.SetAsLastSibling();
+
+          
+            Debug.Log($"{gameObject.name} için buz görseli aktif edildi. HP: {hitPoints}");
         }
     }
+    public void UpdateIceVisual()
+    {
+        if (iceOverlay != null)
+        {
+            
+            Color c = iceOverlay.color;
+            c.a = (iceHitPoints == 2) ? 1f : 0.5f;
+            iceOverlay.color = c;
+        }
+    }
+
 
     public void ClearIce()
     {
