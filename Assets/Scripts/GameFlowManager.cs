@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using System.Collections;
 using TMPro;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 
 public class GameFlowManager : MonoBehaviour
 {
@@ -16,7 +15,9 @@ public class GameFlowManager : MonoBehaviour
     public GameObject losePanel;
     public Button loseRetryButton;
 
-    int currentLevel = 1;
+    
+    public static int currentLevel = 1;
+
     bool levelFinished = false;
 
     [Header("References")]
@@ -61,6 +62,8 @@ public class GameFlowManager : MonoBehaviour
     public int playerCoins = 0;
     public int levelReward = 50;
 
+    private HashSet<int> rewardedLevels = new HashSet<int>();
+
     [Header("Coin UI")]
     public TextMeshProUGUI coinText;
 
@@ -95,6 +98,9 @@ public class GameFlowManager : MonoBehaviour
 
     [Header("Levels")]
     public List<LevelData> levels = new List<LevelData>();
+    public int baseReward;
+    public int bonusPerMove;
+
 
     void Start()
     {
@@ -110,8 +116,6 @@ public class GameFlowManager : MonoBehaviour
         StartCoroutine(CustomerSequence());
     }
 
-   
-
     void LoadLevel(int levelIndex)
     {
         if (board == null) return;
@@ -123,20 +127,14 @@ public class GameFlowManager : MonoBehaviour
         LevelData data = levels[levelIndex - 1];
 
         board.currentLevel = levelIndex;
-
-        
         board.SetGoals(data.goals, data.moveLimit);
-
-        
         board.ResetBoardForNextLevel();
-    }
 
-   
+    }
 
     void LoadCustomer(int index)
     {
-        if (customers.Count == 0)
-            return;
+        if (customers.Count == 0) return;
 
         if (index >= customers.Count)
             index = 0;
@@ -229,13 +227,10 @@ public class GameFlowManager : MonoBehaviour
             goalUI.Refresh();
     }
 
-    
-
     public void OnLevelCompleted()
     {
         if (levelFinished) return;
         levelFinished = true;
-
         StartCoroutine(FinishSequence());
     }
 
@@ -253,14 +248,20 @@ public class GameFlowManager : MonoBehaviour
 
         yield return StartCoroutine(HideCustomerSequence());
 
-        AddCoins(levelReward);
+        if (!rewardedLevels.Contains(currentLevel))
+        {
+            int bonus = board.movesLeft * 2;
+            int totalReward = 20 + bonus;
+
+            AddCoins(totalReward);
+            rewardedLevels.Add(currentLevel);
+        }
+
 
         yield return new WaitForSeconds(0.5f);
 
         levelCompletePanel.SetActive(true);
     }
-
-  
 
     public void OnOutOfMoves()
     {
@@ -296,8 +297,6 @@ public class GameFlowManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
     }
 
-    
-
     void AddCoins(int amount)
     {
         playerCoins += amount;
@@ -310,25 +309,34 @@ public class GameFlowManager : MonoBehaviour
             coinText.text = playerCoins.ToString();
     }
 
-   
-
     void RestartLevel()
     {
         levelFinished = false;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+        levelCompletePanel.SetActive(false);
+        losePanel.SetActive(false);
+
+        
+        LoadLevel(currentLevel);
+        LoadCustomer(currentLevel - 1);
+
+        StartCoroutine(CustomerSequence());
     }
 
     void NextLevel()
     {
+        levelFinished = false;
+
         levelCompletePanel.SetActive(false);
 
         currentLevel++;
-        levelFinished = false;
+
+        if (currentLevel > levels.Count)
+            currentLevel = 1;
 
         LoadLevel(currentLevel);
         LoadCustomer(currentLevel - 1);
 
-        SetupGoalUI();
         StartCoroutine(CustomerSequence());
     }
 

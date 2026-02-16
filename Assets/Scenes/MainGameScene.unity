@@ -276,8 +276,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 15, y: -18}
-  m_SizeDelta: {x: 388.334, y: 117.171}
+  m_AnchoredPosition: {x: 6, y: -123}
+  m_SizeDelta: {x: 479.289, y: 197.241}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &170466101
 MonoBehaviour:
@@ -1220,8 +1220,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -686, y: 151}
-  m_SizeDelta: {x: 172.836, y: -258.496}
+  m_AnchoredPosition: {x: -707.84, y: 127.643}
+  m_SizeDelta: {x: 216.539, y: -211.935}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &622263568
 MonoBehaviour:
@@ -1318,7 +1318,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Button
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b5eb0cc2289fab14284326eeb574c079, type: 2}
   m_sharedMaterial: {fileID: -6753723746149418804, guid: b5eb0cc2289fab14284326eeb574c079, type: 2}
@@ -1445,8 +1447,8 @@ MonoBehaviour:
   choicesContainer: {fileID: 333576441}
   choiceButton1: {fileID: 170466101}
   choiceButton2: {fileID: 954325420}
-  introLine1: '"Merhaba usta..."'
-  introLine2: '"Bu eski saatimi tamir edebilir misin?"'
+  introLine1: 
+  introLine2: 
   choice1Text: "\"Tabii ki, hemen bakay\u0131m.\""
   choice2Text: "\"Zor g\xF6r\xFCn\xFCyor ama denerim.\""
   response1: "\"Harika! Sana g\xFCveniyorum.\""
@@ -1455,53 +1457,64 @@ MonoBehaviour:
   levelReward: 50
   coinText: {fileID: 1846888445}
   customers:
-  - intro1: '"Merhaba usta..."'
+  - intro1: "\"Merhaba usta...Bu k\u0131l\u0131\xE7 \xFC\xE7 gece boyunca u\u011Fuldad\u0131\u2026
+      art\u0131k ruhu \xE7atlad\u0131.\""
     intro2: "\"Bu eski k\u0131l\u0131c\u0131m\u0131 tamir edebilir misin?\""
     customerSprite: {fileID: -2149228961609127317, guid: 33eef272256d26844985312c7aa6c3cd, type: 3}
     brokenSprite: {fileID: -7445561438212924015, guid: 055b184c6fab215458def9de40113b5e, type: 3}
     repairedSprite: {fileID: -7600320551079661094, guid: 415c950cc0092204f80f51f3049a47c3, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba... Elimdeki yay bu diyar\u0131n en iyisi ama art\u0131k y\u0131prand\u0131
+      ve tamir gerekli. \" "
+    intro2: "\"Yay\u0131m\u0131 tamir edebilecek misin?\""
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba usta...Asam b\xFCy\xFC yapm\u0131yor\u2026 sadece karanl\u0131k
+      f\u0131s\u0131ld\u0131yor.\" "
+    intro2: "\"Bu i\u015Ferden anlar m\u0131s\u0131n? Yoksa bana yeni bir asa bor\xE7lu
+      olursun.\""
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba usta... Sihirli k\xFCrem Gelece\u011Fi g\xF6stermeyi b\u0131rakt\u0131\u2026
+      sadece ge\xE7mi\u015Fi tekrar ediyor.\" "
+    intro2: '"Tamir edebilir misin?"'
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba...Biricik Ejderha Z\u0131rh\u0131m...Alevlere dayan\u0131rd\u0131\u2026
+      \u015Fimdi k\u0131v\u0131lc\u0131ma bile titriyor.\" "
+    intro2: "\"Bu z\u0131rh\u0131 tamir edebilir misin?\""
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba...Elimde Antik bir kitapvar. Sayfalar bo\u015F de\u011Fil\u2026
+      ama kelimeler ka\xE7\u0131yor.\" "
+    intro2: '"Bunu tamir edebilecek misin?"'
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba usta...Bu saat zaman\u0131 durdururdu\u2026 \u015Fimdi kendisi
+      durmu\u015F.\" "
+    intro2: '"Tamir edebilir misin?"'
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba usta...Bu han\xE7er g\xF6lgeleri keserdi\u2026 art\u0131k
+      kendi g\xF6lgesini bile de\u011Fil.\" "
+    intro2: "\"Bu han\xE7eri tamir edebilir misin?\""
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba... Bu kehanetlerin kolyesi. Eskiden kalbimle birlikte atard\u0131\u2026
+      \u015Fimdi buz gibi.\" "
+    intro2: '"Tamir edebilir misin?"'
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
-  - intro1: '"Merhaba usta..." '
-    intro2: "\"Bu eski yay\u0131m\u0131 tamir edebilir misin?\""
+  - intro1: "\"Merhaba usta...Bu y\xFCz\xFC\u011F\xFC takt\u0131\u011F\u0131m g\xFCnden
+      beri g\xF6lgem bana ait de\u011Fil. Bir \u015Feyler yanl\u0131\u015F...\" "
+    intro2: "\"Bu y\xFCz\xFC\u011F\xFC tamir edebilir misin?\""
     customerSprite: {fileID: 8187602204587900458, guid: eb0532209f81da94e81469ec6f128faa, type: 3}
     brokenSprite: {fileID: 21300000, guid: 7c51fa8c40119844ca26740434a3f21f, type: 3}
     repairedSprite: {fileID: 21300000, guid: 77d5df1666ec9af4eac2e164b4b087da, type: 3}
@@ -1620,6 +1633,8 @@ MonoBehaviour:
     - goalSprite: {fileID: 21300000, guid: 7f522e5c71cc833449698c145069233f, type: 3}
       targetAmount: 3
       matchColorID: 0
+  baseReward: 0
+  bonusPerMove: 0
 --- !u!4 &736593715
 Transform:
   m_ObjectHideFlags: 0
@@ -1961,8 +1976,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 13.867987, y: -157.05902}
-  m_SizeDelta: {x: 388.384, y: 117.961}
+  m_AnchoredPosition: {x: 4.684158, y: -357.08594}
+  m_SizeDelta: {x: 479.351, y: 198.571}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &954325420
 MonoBehaviour:
@@ -2155,7 +2170,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3, y: 41}
+  m_AnchoredPosition: {x: -3, y: 53}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1083183916

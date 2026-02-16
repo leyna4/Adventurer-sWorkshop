@@ -1,6 +1,6 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 
 public class BoardManager : MonoBehaviour
@@ -33,10 +33,9 @@ public class BoardManager : MonoBehaviour
 
     public Tile[,] tiles;
 
-    List<Tile> matchedTiles = new List<Tile>();
-
     [HideInInspector] public int currentLevel = 1;
 
+    bool isSwapping = false;
     bool isProcessingMatches = false;
 
     void Start()
@@ -45,11 +44,10 @@ public class BoardManager : MonoBehaviour
         UpdateMovesUI();
         GenerateBoard();
         PlaceSpecialItems();
+        AddIceToBoard();
     }
 
-    // =========================
-    // LEVEL SETUP (IMPORTANT)
-    // =========================
+    #region Setup
 
     public void SetGoals(List<GameFlowManager.LevelGoal> levelGoals, int moveLimitFromLevel)
     {
@@ -62,13 +60,11 @@ public class BoardManager : MonoBehaviour
             newGoal.targetAmount = lg.targetAmount;
             newGoal.collectedAmount = 0;
             newGoal.matchColorType = lg.matchColorID;
-
             goals.Add(newGoal);
         }
 
         moveLimit = moveLimitFromLevel;
         movesLeft = moveLimit;
-
         UpdateMovesUI();
     }
 
@@ -77,30 +73,42 @@ public class BoardManager : MonoBehaviour
         if (tiles != null)
         {
             for (int x = 0; x < width; x++)
+            {
                 for (int y = 0; y < height; y++)
+                {
                     if (tiles[x, y] != null)
+                    {
                         Destroy(tiles[x, y].gameObject);
+                    }
+                }
+            }
         }
 
-        foreach (GoalData goal in goals)
-            goal.collectedAmount = 0;
+        
+        tiles = null;
+        isSwapping = false;
 
         movesLeft = moveLimit;
         UpdateMovesUI();
 
         GenerateBoard();
         PlaceSpecialItems();
+        AddIceToBoard();
+        isProcessingMatches = false;
+        Debug.Log("Level Started. isSwapping: " + isSwapping);
+
     }
 
-    // =========================
-    // UI
-    // =========================
 
     void UpdateMovesUI()
     {
         if (movesText != null)
             movesText.text = "Moves: " + movesLeft;
     }
+
+    #endregion
+
+    #region Board Generation
 
     Vector3 GetWorldPosition(int x, int y)
     {
@@ -114,10 +122,6 @@ public class BoardManager : MonoBehaviour
         );
     }
 
-    // =========================
-    // BOARD GENERATION
-    // =========================
-
     void GenerateBoard()
     {
         tiles = new Tile[width, height];
@@ -126,24 +130,35 @@ public class BoardManager : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                GameObject obj = Instantiate(tilePrefab, transform);
-                Tile tile = obj.GetComponent<Tile>();
-
-                tile.tileSprites = tileSprites;
-                tile.SetType(Random.Range(0, 5));
-
-                obj.transform.localPosition = GetWorldPosition(x, y);
-
-                tiles[x, y] = tile;
-                tile.x = x;
-                tile.y = y;
-                tile.board = this;
+                SpawnTileAt(x, y);
             }
         }
     }
 
+    void SpawnTileAt(int x, int y)
+    {
+        GameObject obj = Instantiate(tilePrefab, transform);
+        Tile tile = obj.GetComponent<Tile>();
+
+        tile.tileSprites = tileSprites;
+        tile.SetType(Random.Range(0, 5));
+
+        obj.transform.localPosition = GetWorldPosition(x, y);
+
+        tiles[x, y] = tile;
+        tile.x = x;
+        tile.y = y;
+        tile.board = this;
+    }
+
+    #endregion
+
+    #region Special + Ice
+
     void PlaceSpecialItems()
     {
+        float iceChance = GetIceChance();
+
         foreach (var goal in goals)
         {
             for (int s = 0; s < goal.targetAmount; s++)
@@ -162,19 +177,75 @@ public class BoardManager : MonoBehaviour
                 tile.SetType(goal.matchColorType);
                 tile.image.sprite = goal.goalSprite;
                 tile.isSpecialItem = true;
+
+                if (currentLevel >= 4)
+                {
+                    tile.SetIce(2); 
+                }
+
             }
         }
     }
 
-    // =========================
-    // SWAP
-    // =========================
-
-    public void SwapTiles(Tile a, Tile b, bool isReverting = false)
+    float GetIceChance()
     {
-        if (movesLeft <= 0 && !isReverting)
-            return;
+        if (currentLevel < 4)
+            return 0f;
 
+        if (currentLevel >= 10)
+            return 0.8f;
+
+        return Mathf.Lerp(0.5f, 0.8f, (currentLevel - 4) / 6f);
+    }
+
+    #endregion
+
+    #region Swap System
+
+    
+
+    public void SwapTiles(Tile a, Tile b)
+    {
+        if (isSwapping) return;
+        if (movesLeft <= 0) return;
+        if (a == null || b == null) return;
+        if (tiles == null) return;
+
+        StartCoroutine(SwapRoutine(a, b));
+    }
+
+    IEnumerator SwapRoutine(Tile a, Tile b)
+    {
+        isSwapping = true;
+
+       
+        SwapData(a, b);
+
+        
+        movesLeft--;
+        UpdateMovesUI();
+
+        yield return new WaitForSeconds(0.2f);
+
+       
+        if (HasMatch())
+        {
+            yield return StartCoroutine(ProcessMatches());
+        }
+        else
+        {
+            
+            SwapData(a, b);
+        }
+
+       
+        CheckLoseCondition();
+
+        isSwapping = false;
+    }
+
+    void SwapData(Tile a, Tile b)
+    {
         tiles[a.x, a.y] = b;
         tiles[b.x, b.y] = a;
 
@@ -189,157 +260,121 @@ public class BoardManager : MonoBehaviour
 
         a.transform.localPosition = GetWorldPosition(a.x, a.y);
         b.transform.localPosition = GetWorldPosition(b.x, b.y);
-
-        if (!isReverting)
-        {
-            movesLeft--;
-            if (movesLeft < 0) movesLeft = 0;
-            UpdateMovesUI();
-
-            if (HasMatch())
-                CheckMatches();
-            else
-                StartCoroutine(RevertSwap(a, b));
-        }
     }
 
-    IEnumerator RevertSwap(Tile a, Tile b)
-    {
-        yield return new WaitForSeconds(0.2f);
-        SwapTiles(a, b, true);
-    }
+    
 
-    // =========================
-    // MATCH CHECK
-    // =========================
+    #endregion
+
+    #region Match System
 
     bool HasMatch()
     {
+        return GetAllMatches().Count > 0;
+    }
+
+    List<Tile> GetAllMatches()
+    {
+        List<Tile> result = new List<Tile>();
+
         for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-                if (CheckMatchAt(x, y))
-                    return true;
-
-        return false;
-    }
-
-    bool CheckMatchAt(int x, int y)
-    {
-        if (tiles[x, y] == null) return false;
-
-        int type = tiles[x, y].tileType;
-
-        int horizontal = 1;
-        if (x > 0 && tiles[x - 1, y] != null && tiles[x - 1, y].tileType == type) horizontal++;
-        if (x < width - 1 && tiles[x + 1, y] != null && tiles[x + 1, y].tileType == type) horizontal++;
-        if (horizontal >= 3) return true;
-
-        int vertical = 1;
-        if (y > 0 && tiles[x, y - 1] != null && tiles[x, y - 1].tileType == type) vertical++;
-        if (y < height - 1 && tiles[x, y + 1] != null && tiles[x, y + 1].tileType == type) vertical++;
-        return vertical >= 3;
-    }
-
-    void CheckMatches()
-    {
-        matchedTiles.Clear();
-
-        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < width - 2; x++)
+            for (int y = 0; y < height; y++)
             {
-                if (tiles[x, y] == null ||
-                    tiles[x + 1, y] == null ||
-                    tiles[x + 2, y] == null)
-                    continue;
+                if (tiles[x, y] == null) continue;
 
                 int type = tiles[x, y].tileType;
 
-                if (tiles[x + 1, y].tileType == type &&
+               
+                if (x < width - 2 &&
+                    tiles[x + 1, y] != null &&
+                    tiles[x + 2, y] != null &&
+                    tiles[x + 1, y].tileType == type &&
                     tiles[x + 2, y].tileType == type)
                 {
-                    matchedTiles.Add(tiles[x, y]);
-                    matchedTiles.Add(tiles[x + 1, y]);
-                    matchedTiles.Add(tiles[x + 2, y]);
+                    result.Add(tiles[x, y]);
+                    result.Add(tiles[x + 1, y]);
+                    result.Add(tiles[x + 2, y]);
                 }
-            }
-        }
 
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height - 2; y++)
-            {
-                if (tiles[x, y] == null ||
-                    tiles[x, y + 1] == null ||
-                    tiles[x, y + 2] == null)
-                    continue;
-
-                int type = tiles[x, y].tileType;
-
-                if (tiles[x, y + 1].tileType == type &&
+                
+                if (y < height - 2 &&
+                    tiles[x, y + 1] != null &&
+                    tiles[x, y + 2] != null &&
+                    tiles[x, y + 1].tileType == type &&
                     tiles[x, y + 2].tileType == type)
                 {
-                    matchedTiles.Add(tiles[x, y]);
-                    matchedTiles.Add(tiles[x, y + 1]);
-                    matchedTiles.Add(tiles[x, y + 2]);
+                    result.Add(tiles[x, y]);
+                    result.Add(tiles[x, y + 1]);
+                    result.Add(tiles[x, y + 2]);
                 }
             }
         }
 
-        if (matchedTiles.Count > 0)
-            StartCoroutine(ClearMatchesRoutine());
-        else
-            CheckLoseCondition();
+        return result;
     }
 
-    IEnumerator ClearMatchesRoutine()
+    IEnumerator ProcessMatches()
     {
-        isProcessingMatches = true;
-
-        yield return new WaitForSeconds(0.15f);
-
-        foreach (Tile tile in matchedTiles)
+        while (true)
         {
-            if (tile == null) continue;
+            yield return new WaitForSeconds(0.1f);
 
-            if (tile.isSpecialItem)
+            List<Tile> matches = GetAllMatches();
+            if (matches.Count == 0)
+                break;
+
+            foreach (Tile tile in matches)
             {
-                foreach (var goal in goals)
+                if (tile == null) continue;
+
+                
+                if (tile.hasIce)
                 {
-                    if (goal.matchColorType == tile.tileType)
+                    tile.iceHitPoints--;
+
+                    if (tile.iceHitPoints <= 0)
                     {
-                        goal.collectedAmount++;
-                        break;
+                        tile.ClearIce();
+                    }
+
+                    continue; 
+                }
+
+               
+                if (tile.isSpecialItem)
+                {
+                    foreach (var goal in goals)
+                    {
+                        if (goal.matchColorType == tile.tileType)
+                        {
+                            goal.collectedAmount++;
+                            break;
+                        }
                     }
                 }
+
+                tiles[tile.x, tile.y] = null;
+                Destroy(tile.gameObject);
             }
 
-            int x = tile.x;
-            int y = tile.y;
 
-            tiles[x, y] = null;
+            yield return new WaitForSeconds(0.1f);
 
-            yield return StartCoroutine(tile.PlayDestroyAnimation());
+            ApplyGravity();
+            yield return new WaitForSeconds(0.1f);
 
-            if (tile != null)
-                Destroy(tile.gameObject);
+            SpawnNewTiles();
+            yield return new WaitForSeconds(0.2f);
         }
-
-        matchedTiles.Clear();
-
-        yield return new WaitForSeconds(0.1f);
-
-        ApplyGravity();
-        yield return new WaitForSeconds(0.1f);
-
-        SpawnNewTiles();
-        yield return new WaitForSeconds(0.2f);
-
-        isProcessingMatches = false;
 
         CheckLevelComplete();
         CheckLoseCondition();
     }
+
+    #endregion
+
+    #region Gravity
 
     void ApplyGravity()
     {
@@ -374,30 +409,21 @@ public class BoardManager : MonoBehaviour
             {
                 if (tiles[x, y] == null)
                 {
-                    GameObject obj = Instantiate(tilePrefab, transform);
-                    Tile tile = obj.GetComponent<Tile>();
-
-                    tile.tileSprites = tileSprites;
-                    tile.SetType(Random.Range(0, 5));
-
-                    obj.transform.localPosition = GetWorldPosition(x, y);
-
-                    tiles[x, y] = tile;
-                    tile.x = x;
-                    tile.y = y;
-                    tile.board = this;
+                    SpawnTileAt(x, y);
                 }
             }
         }
     }
 
+    #endregion
+
+    #region Win/Lose
+
     void CheckLevelComplete()
     {
         foreach (var goal in goals)
-        {
             if (goal.collectedAmount < goal.targetAmount)
                 return;
-        }
 
         FindObjectOfType<GameFlowManager>().OnLevelCompleted();
     }
@@ -415,4 +441,46 @@ public class BoardManager : MonoBehaviour
             }
         }
     }
+    void AddIceToBoard()
+    {
+        if (currentLevel < 4) return;
+
+        float iceRatio = GetIceRatio();
+
+        int totalTiles = width * height;
+        int iceCount = Mathf.RoundToInt(totalTiles * iceRatio);
+
+        int placed = 0;
+        int safety = 0;
+
+        while (placed < iceCount && safety < 500)
+        {
+            safety++;
+
+            int x = Random.Range(0, width);
+            int y = Random.Range(0, height);
+
+            Tile tile = tiles[x, y];
+
+            if (tile == null) continue;
+            if (tile.hasIce) continue;
+            if (tile.isSpecialItem) continue;
+
+            tile.SetIce(2);
+            placed++;
+        }
+    }
+    float GetIceRatio()
+    {
+        if (currentLevel < 4)
+            return 0f;
+
+        if (currentLevel >= 10)
+            return 0.22f;
+
+        return Mathf.Lerp(0.08f, 0.22f, (currentLevel - 4) / 6f);
+    }
+
+
+    #endregion
 }

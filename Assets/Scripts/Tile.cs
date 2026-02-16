@@ -49,7 +49,7 @@ public class Tile : MonoBehaviour,
         }
     }
 
-    
+
 
     public void SetIce(int hitPoints)
     {
@@ -78,7 +78,7 @@ public class Tile : MonoBehaviour,
         tileType = type;
 
         if (tileSprites != null && type < tileSprites.Length)
-            image.sprite = tileSprites[type];  
+            image.sprite = tileSprites[type];
     }
 
     public void OnPointerDown(PointerEventData eventData) { }
