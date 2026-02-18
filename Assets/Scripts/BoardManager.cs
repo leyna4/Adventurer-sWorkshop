@@ -307,7 +307,7 @@ public class BoardManager : MonoBehaviour
             {
                 if (tile == null) continue;
 
-                // --- BUZ MEKANÝÐÝ BURADA BAÞLIYOR ---
+               
                 if (tile.hasIce)
                 {
                     tile.iceHitPoints--;
@@ -318,15 +318,13 @@ public class BoardManager : MonoBehaviour
                     }
                     else
                     {
-                        // Buz hala var, görselini güncelle (Tile scriptinde UpdateIceVisual olmalý)
+                       
                         tile.UpdateIceVisual();
                     }
-                    // Buz varsa taþý yok etmeden sonraki eþleþmeye geç
+                   
                     continue;
                 }
-                // --- BUZ MEKANÝÐÝ BURADA BÝTÝYOR ---
-
-                // Özel eþya toplama (Buz yoksa veya kýrýldýysa buraya ulaþýr)
+                
                 if (tile.isSpecialItem)
                 {
                     foreach (var goal in goals)

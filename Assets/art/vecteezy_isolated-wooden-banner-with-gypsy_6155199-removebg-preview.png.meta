@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: dcc7bd2e1914ad94684c8efdd385a7d8
+guid: db2c5cb7dcccf754bb4744779a2a4d97
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4936314067594575334
-    second: vecteezy_a-medieval-dwarf-cartoon-character_8599620_0
+      213: 5183169574928690679
+    second: vecteezy_isolated-wooden-banner-with-gypsy_6155199-removebg-preview_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: vecteezy_a-medieval-dwarf-cartoon-character_8599620_0
+      name: vecteezy_isolated-wooden-banner-with-gypsy_6155199-removebg-preview_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
-        height: 1920
+        width: 374
+        height: 668
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a12034d5280be7bb0800000000000000
-      internalID: -4936314067594575334
+      spriteID: 7fdac3c44415ee740800000000000000
+      internalID: 5183169574928690679
       vertices: []
       indices: 
       edges: []
