@@ -6,7 +6,7 @@ public class MainMenuManager : MonoBehaviour
     public void PlayGame()
     {
         GameFlowManager.currentLevel = 1;
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("MainGameScene");
     }
 
     public void QuitGame()
