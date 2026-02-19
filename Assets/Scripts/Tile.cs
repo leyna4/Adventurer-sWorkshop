@@ -49,28 +49,25 @@ public class Tile : MonoBehaviour,
         hasIce = true;
         iceHitPoints = hitPoints;
 
-        
         if (iceOverlay == null)
             iceOverlay = transform.Find("IceOverlay")?.GetComponent<Image>();
 
         if (iceOverlay != null)
         {
-            iceOverlay.gameObject.SetActive(true); 
-            iceOverlay.color = Color.white;
+            iceOverlay.gameObject.SetActive(true);
+            
+            iceOverlay.color = new Color(1f, 1f, 1f, 0.6f);
             iceOverlay.transform.SetAsLastSibling();
-
-          
-            Debug.Log($"{gameObject.name} için buz görseli aktif edildi. HP: {hitPoints}");
         }
     }
+
     public void UpdateIceVisual()
     {
         if (iceOverlay != null)
         {
-            
-            Color c = iceOverlay.color;
-            c.a = (iceHitPoints == 2) ? 1f : 0.5f;
-            iceOverlay.color = c;
+          
+            float alpha = (iceHitPoints == 1) ? 0.3f : 0.6f;
+            iceOverlay.color = new Color(1f, 1f, 1f, alpha);
         }
     }
 

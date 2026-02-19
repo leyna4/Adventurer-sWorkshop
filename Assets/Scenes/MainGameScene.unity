@@ -1849,17 +1849,6 @@ MonoBehaviour:
   brokenItemSprite: {fileID: -7445561438212924015, guid: 055b184c6fab215458def9de40113b5e, type: 3}
   repairedItemSprite: {fileID: -7600320551079661094, guid: 415c950cc0092204f80f51f3049a47c3, type: 3}
   dialogueBox: {fileID: 622263566}
-  choicesContainer: {fileID: 333576441}
-  choiceButton1: {fileID: 170466101}
-  choiceButton2: {fileID: 954325420}
-  introLine1: 
-  introLine2: 
-  choice1Text: "\"Tabii ki, hemen bakay\u0131m.\""
-  choice2Text: "\"Zor g\xF6r\xFCn\xFCyor ama denerim.\""
-  response1: "\"Harika! Sana g\xFCveniyorum.\""
-  response2: "\"L\xFCtfen dikkatli ol.\""
-  playerCoins: 0
-  coinText: {fileID: 1846888445}
   customers:
   - intro1: "\"Merhaba usta...Bu k\u0131l\u0131\xE7 \xFC\xE7 gece boyunca u\u011Fuldad\u0131\u2026
       art\u0131k ruhu \xE7atlad\u0131.\""
@@ -1960,7 +1949,7 @@ MonoBehaviour:
       targetAmount: 1
       matchColorID: 4
     - goalSprite: {fileID: 21300000, guid: 2bd21b175b95d2b43bc0ad892944aac2, type: 3}
-      targetAmount: 2
+      targetAmount: 1
       matchColorID: 2
   - moveLimit: 18
     goals:
@@ -2026,6 +2015,8 @@ MonoBehaviour:
       targetAmount: 2
       matchColorID: 0
   pausePanel: {fileID: 2023712212}
+  playerCoins: 0
+  coinText: {fileID: 1846888445}
 --- !u!4 &736593715
 Transform:
   m_ObjectHideFlags: 0
@@ -2486,8 +2477,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -31, y: 56}
-  m_SizeDelta: {x: 154.824, y: 141.119}
+  m_AnchoredPosition: {x: 4.921, y: 44.047}
+  m_SizeDelta: {x: 226.582, y: 141.119}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1070101141
 MonoBehaviour:
@@ -4602,7 +4593,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -10, y: -54}
+  m_AnchoredPosition: {x: -15, y: -54}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1888339261
