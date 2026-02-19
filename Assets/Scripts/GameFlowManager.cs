@@ -38,6 +38,13 @@ public class GameFlowManager : MonoBehaviour
     public Sprite repairedItemSprite;
     public GameObject dialogueBox;
 
+    [Header("Dialogue Buttons")]
+    public GameObject choiceButtons;   // 2 butonun parent objesi
+    public Button choiceButton1;
+    public Button choiceButton2;
+
+    private bool playerAnswered = false;
+
     [System.Serializable]
     public class CustomerData
     {
@@ -85,6 +92,10 @@ public class GameFlowManager : MonoBehaviour
         retryButton.onClick.AddListener(RestartLevel);
         nextLevelButton.onClick.AddListener(NextLevel);
         loseRetryButton.onClick.AddListener(RestartLevel);
+
+        choiceButton1.onClick.AddListener(OnPlayerChoice);
+        choiceButton2.onClick.AddListener(OnPlayerChoice);
+
         StartCoroutine(InitialSetup());
     }
 
@@ -111,12 +122,14 @@ public class GameFlowManager : MonoBehaviour
 
     public void RestartLevel()
     {
+        StopAllCoroutines();
         levelFinished = false;
         Time.timeScale = 1f;
         isPaused = false;
         levelCompletePanel.SetActive(false);
         losePanel.SetActive(false);
         pausePanel.SetActive(false);
+
         LoadLevel(currentLevel);
         LoadCustomer(currentLevel - 1);
         StartCoroutine(CustomerSequence());
@@ -124,13 +137,55 @@ public class GameFlowManager : MonoBehaviour
 
     void NextLevel()
     {
+        StopAllCoroutines();
         levelFinished = false;
         levelCompletePanel.SetActive(false);
+
         currentLevel++;
         if (currentLevel > levels.Count) currentLevel = 1;
+
         LoadLevel(currentLevel);
         LoadCustomer(currentLevel - 1);
         StartCoroutine(CustomerSequence());
+    }
+
+   IEnumerator CustomerSequence()
+    {
+        playerAnswered = false;
+
+        match3Area.SetActive(false);
+        specialPanel.SetActive(false);
+        customerVisual.SetActive(true);
+
+        dialogueBox.SetActive(true);
+        choiceButtons.SetActive(false);   
+        
+        dialogueText.text = customers[currentLevel - 1].intro1;
+        yield return new WaitForSecondsRealtime(2f);
+
+        
+        dialogueText.text = customers[currentLevel - 1].intro2;
+        yield return new WaitForSecondsRealtime(2f);
+
+        
+        choiceButtons.SetActive(true);
+
+       
+        yield return new WaitUntil(() => playerAnswered);
+
+        
+        dialogueBox.SetActive(false);
+        choiceButtons.SetActive(false);
+
+        match3Area.SetActive(true);
+        specialPanel.SetActive(true);
+        UpdateGoalUI();
+    }
+
+
+    public void OnPlayerChoice()
+    {
+        playerAnswered = true;
     }
 
     public void OnLevelCompleted()
@@ -145,6 +200,7 @@ public class GameFlowManager : MonoBehaviour
         match3Area.SetActive(false);
         specialPanel.SetActive(false);
         if (itemImage != null) itemImage.sprite = repairedItemSprite;
+
         yield return new WaitForSeconds(2f);
 
         if (!rewardedLevels.Contains(currentLevel))
@@ -154,6 +210,7 @@ public class GameFlowManager : MonoBehaviour
             rewardedLevels.Add(currentLevel);
             UpdateCoinUI();
         }
+
         levelCompletePanel.SetActive(true);
     }
 
@@ -196,34 +253,38 @@ public class GameFlowManager : MonoBehaviour
     {
         if (customers.Count == 0) return;
         if (index >= customers.Count) index = 0;
+
         CustomerData data = customers[index];
         brokenItemSprite = data.brokenSprite;
         repairedItemSprite = data.repairedSprite;
+
         if (customerImage != null) customerImage.sprite = data.customerSprite;
         if (itemImage != null) itemImage.sprite = data.brokenSprite;
     }
 
-    IEnumerator CustomerSequence()
+    void UpdateCoinUI()
     {
-        match3Area.SetActive(false);
-        specialPanel.SetActive(false);
-        customerVisual.SetActive(true);
-        if (itemImage != null) itemImage.gameObject.SetActive(true);
-
-        dialogueBox.SetActive(true);
-        dialogueText.text = customers[currentLevel - 1].intro1;
-        yield return new WaitForSeconds(2f);
-        dialogueText.text = customers[currentLevel - 1].intro2;
-        yield return new WaitForSeconds(2f);
-
-        dialogueBox.SetActive(false);
-        match3Area.SetActive(true);
-        specialPanel.SetActive(true);
-        UpdateGoalUI();
+        if (coinText != null)
+            coinText.text = playerCoins.ToString();
     }
 
-    void UpdateCoinUI() { if (coinText != null) coinText.text = playerCoins.ToString(); }
-    public void TogglePause() { if (isPaused) ResumeGame(); else PauseGame(); }
-    void PauseGame() { pausePanel.SetActive(true); Time.timeScale = 0f; isPaused = true; }
-    public void ResumeGame() { pausePanel.SetActive(false); Time.timeScale = 1f; isPaused = false; }
+    public void TogglePause()
+    {
+        if (isPaused) ResumeGame();
+        else PauseGame();
+    }
+
+    void PauseGame()
+    {
+        pausePanel.SetActive(true);
+        Time.timeScale = 0f;
+        isPaused = true;
+    }
+
+    public void ResumeGame()
+    {
+        pausePanel.SetActive(false);
+        Time.timeScale = 1f;
+        isPaused = false;
+    }
 }
