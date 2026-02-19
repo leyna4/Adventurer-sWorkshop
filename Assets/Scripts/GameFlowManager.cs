@@ -157,6 +157,11 @@ public class GameFlowManager : MonoBehaviour
         specialPanel.SetActive(false);
         customerVisual.SetActive(true);
 
+        if (itemImage != null)
+        {
+            itemImage.gameObject.SetActive(true);   
+            itemImage.sprite = brokenItemSprite;    
+        }
         dialogueBox.SetActive(true);
         choiceButtons.SetActive(false);   
         
