@@ -11,7 +11,6 @@ public class Tile : MonoBehaviour,
 {
     public int tileType;
     public Image image;
-
     public int x;
     public int y;
     public BoardManager board;
@@ -23,17 +22,15 @@ public class Tile : MonoBehaviour,
     public bool hasIce;
     public int iceHitPoints;
     public Image iceOverlay;
+    public bool iceJustBroken = false;
 
     public bool isSpecialItem = false;
-
     public Sprite[] tileSprites;
-    public bool iceJustBroken = false;
 
     Vector2 dragStartPos;
 
     void Awake()
     {
-        
         if (image == null)
             image = GetComponent<Image>();
 
@@ -44,18 +41,16 @@ public class Tile : MonoBehaviour,
             iceOverlay.raycastTarget = false;
     }
 
-    public void SetIce(int hitPoints)
+    
+    public void SetIce(int hp)
     {
         hasIce = true;
-        iceHitPoints = hitPoints;
-
+        iceHitPoints = hp;
         if (iceOverlay == null)
             iceOverlay = transform.Find("IceOverlay")?.GetComponent<Image>();
-
         if (iceOverlay != null)
         {
             iceOverlay.gameObject.SetActive(true);
-            
             iceOverlay.color = new Color(1f, 1f, 1f, 0.6f);
             iceOverlay.transform.SetAsLastSibling();
         }
@@ -65,34 +60,34 @@ public class Tile : MonoBehaviour,
     {
         if (iceOverlay != null)
         {
-          
             float alpha = (iceHitPoints == 1) ? 0.3f : 0.6f;
             iceOverlay.color = new Color(1f, 1f, 1f, alpha);
         }
     }
 
-
     public void ClearIce()
     {
         hasIce = false;
         iceHitPoints = 0;
-
         if (iceOverlay != null)
             iceOverlay.gameObject.SetActive(false);
     }
 
+    
     public void SetType(int type)
     {
         tileType = type;
-
         if (tileSprites != null && type < tileSprites.Length)
             image.sprite = tileSprites[type];
     }
 
+    
     public void OnPointerDown(PointerEventData eventData) { }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        
+        if (board != null && board.inputLocked) return;
         dragStartPos = eventData.position;
     }
 
@@ -100,14 +95,14 @@ public class Tile : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (board != null && board.inputLocked) return;
+
         Vector2 dragEndPos = eventData.position;
         Vector2 direction = dragEndPos - dragStartPos;
 
-        if (direction.magnitude < 50f)
-            return;
+        if (direction.magnitude < 50f) return;
 
         direction.Normalize();
-
         int targetX = x;
         int targetY = y;
 
@@ -116,25 +111,25 @@ public class Tile : MonoBehaviour,
         else
             targetY += direction.y > 0 ? 1 : -1;
 
-        if (targetX >= 0 && targetX < board.width &&
+        if (board != null &&
+            targetX >= 0 && targetX < board.width &&
             targetY >= 0 && targetY < board.height)
         {
             board.SwapTiles(this, board.tiles[targetX, targetY]);
         }
     }
 
+    
     public IEnumerator PlayDestroyAnimation()
     {
         float duration = 0.15f;
         float elapsed = 0f;
-
         Vector3 startScale = transform.localScale;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
-
             transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
             yield return null;
         }

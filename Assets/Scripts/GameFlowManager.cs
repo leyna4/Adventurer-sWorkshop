@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using TMPro;
 using System.Collections.Generic;
+using TMPro;
 
 public class GameFlowManager : MonoBehaviour
 {
@@ -39,10 +39,9 @@ public class GameFlowManager : MonoBehaviour
     public GameObject dialogueBox;
 
     [Header("Dialogue Buttons")]
-    public GameObject choiceButtons;   // 2 butonun parent objesi
+    public GameObject choiceButtons;
     public Button choiceButton1;
     public Button choiceButton2;
-
     private bool playerAnswered = false;
 
     [System.Serializable]
@@ -86,16 +85,18 @@ public class GameFlowManager : MonoBehaviour
     public TextMeshProUGUI coinText;
     private HashSet<int> rewardedLevels = new HashSet<int>();
 
+
+    [Header("Tutorial")]
+    public TutorialManager tutorialManager;
+
     void Start()
     {
         UpdateCoinUI();
         retryButton.onClick.AddListener(RestartLevel);
         nextLevelButton.onClick.AddListener(NextLevel);
         loseRetryButton.onClick.AddListener(RestartLevel);
-
         choiceButton1.onClick.AddListener(OnPlayerChoice);
         choiceButton2.onClick.AddListener(OnPlayerChoice);
-
         StartCoroutine(InitialSetup());
     }
 
@@ -105,14 +106,17 @@ public class GameFlowManager : MonoBehaviour
         LoadCustomer(currentLevel - 1);
         yield return new WaitForEndOfFrame();
         UpdateGoalUI();
-        StartCoroutine(CustomerSequence());
+        yield return StartCoroutine(CustomerSequence());
+
+        
+        if (currentLevel == 1 && tutorialManager != null)
+            tutorialManager.StartTutorial();
     }
 
     void LoadLevel(int levelIndex)
     {
         if (board == null || levels.Count == 0) return;
         if (levelIndex - 1 >= levels.Count) levelIndex = 1;
-
         LevelData data = levels[levelIndex - 1];
         board.currentLevel = levelIndex;
         board.SetGoals(data.goals, data.moveLimit);
@@ -129,10 +133,10 @@ public class GameFlowManager : MonoBehaviour
         levelCompletePanel.SetActive(false);
         losePanel.SetActive(false);
         pausePanel.SetActive(false);
-
         LoadLevel(currentLevel);
         LoadCustomer(currentLevel - 1);
         StartCoroutine(CustomerSequence());
+        
     }
 
     void NextLevel()
@@ -140,53 +144,40 @@ public class GameFlowManager : MonoBehaviour
         StopAllCoroutines();
         levelFinished = false;
         levelCompletePanel.SetActive(false);
-
         currentLevel++;
         if (currentLevel > levels.Count) currentLevel = 1;
-
         LoadLevel(currentLevel);
         LoadCustomer(currentLevel - 1);
         StartCoroutine(CustomerSequence());
     }
 
-   IEnumerator CustomerSequence()
+    IEnumerator CustomerSequence()
     {
         playerAnswered = false;
-
         match3Area.SetActive(false);
         specialPanel.SetActive(false);
         customerVisual.SetActive(true);
 
         if (itemImage != null)
         {
-            itemImage.gameObject.SetActive(true);   
-            itemImage.sprite = brokenItemSprite;    
+            itemImage.gameObject.SetActive(true);
+            itemImage.sprite = brokenItemSprite;
         }
+
         dialogueBox.SetActive(true);
-        choiceButtons.SetActive(false);   
-        
+        choiceButtons.SetActive(false);
         dialogueText.text = customers[currentLevel - 1].intro1;
         yield return new WaitForSecondsRealtime(2f);
-
-        
         dialogueText.text = customers[currentLevel - 1].intro2;
         yield return new WaitForSecondsRealtime(2f);
-
-        
         choiceButtons.SetActive(true);
-
-       
         yield return new WaitUntil(() => playerAnswered);
-
-        
         dialogueBox.SetActive(false);
         choiceButtons.SetActive(false);
-
         match3Area.SetActive(true);
         specialPanel.SetActive(true);
         UpdateGoalUI();
     }
-
 
     public void OnPlayerChoice()
     {
@@ -205,7 +196,6 @@ public class GameFlowManager : MonoBehaviour
         match3Area.SetActive(false);
         specialPanel.SetActive(false);
         if (itemImage != null) itemImage.sprite = repairedItemSprite;
-
         yield return new WaitForSeconds(2f);
 
         if (!rewardedLevels.Contains(currentLevel))
@@ -241,10 +231,8 @@ public class GameFlowManager : MonoBehaviour
     void Update()
     {
         if (activeGoals.Count > 0)
-        {
             foreach (var goalUI in activeGoals)
                 if (goalUI != null) goalUI.Refresh();
-        }
     }
 
     public void UpdateGoalUI()
@@ -258,11 +246,9 @@ public class GameFlowManager : MonoBehaviour
     {
         if (customers.Count == 0) return;
         if (index >= customers.Count) index = 0;
-
         CustomerData data = customers[index];
         brokenItemSprite = data.brokenSprite;
         repairedItemSprite = data.repairedSprite;
-
         if (customerImage != null) customerImage.sprite = data.customerSprite;
         if (itemImage != null) itemImage.sprite = data.brokenSprite;
     }
