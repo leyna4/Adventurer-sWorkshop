@@ -3759,8 +3759,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardManager: {fileID: 1806241592}
-  dimOverlay: {fileID: 311684356}
-  handIcon: {fileID: 0}
+  dimOverlay: {fileID: 0}
   isTutorialActive: 0
 --- !u!4 &1275872854
 Transform:
@@ -5101,7 +5100,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5938bd5d018267a45aa0962f00fbabe7, type: 3}
   specialTileSprites:
   - {fileID: 21300000, guid: eacf780d8cc908e4e814340733a2ebc0, type: 3}
-  - {fileID: 21300000, guid: eacf780d8cc908e4e814340733a2ebc0, type: 3}
+  - {fileID: 21300000, guid: a87daf7c2c8a4434c8d575f0954a5802, type: 3}
   width: 7
   height: 7
   tilePrefab: {fileID: 1925396914389260733, guid: b071cbd8a3e1ee94891a740f1341cbab, type: 3}
