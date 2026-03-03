@@ -760,6 +760,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1225124501}
+  - {fileID: 2023712215}
   m_Father: {fileID: 614174213}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.049000002, y: 0.93357795}
@@ -1608,7 +1609,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 90973553}
-  - {fileID: 1675309782}
   m_Father: {fileID: 2023712215}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1810,7 +1810,6 @@ RectTransform:
   - {fileID: 1244863963}
   - {fileID: 1632668542}
   - {fileID: 304518134}
-  - {fileID: 2023712215}
   - {fileID: 311684355}
   - {fileID: 1824622186}
   - {fileID: 1843793696}
@@ -2043,7 +2042,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Tabi bakay\u0131m"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b5eb0cc2289fab14284326eeb574c079, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 00e52c4a7055a194b9dae121971317a2, type: 2}
   m_sharedMaterial: {fileID: -6753723746149418804, guid: b5eb0cc2289fab14284326eeb574c079, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -2109,7 +2108,7 @@ MonoBehaviour:
   m_margin: {x: 4.3325653, y: 5.4185104, z: 6.498886, w: 24.912296}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &638156663
@@ -3302,8 +3301,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b5eb0cc2289fab14284326eeb574c079, type: 2}
-  m_sharedMaterial: {fileID: -6753723746149418804, guid: b5eb0cc2289fab14284326eeb574c079, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 00e52c4a7055a194b9dae121971317a2, type: 2}
+  m_sharedMaterial: {fileID: 1071783022299706562, guid: 00e52c4a7055a194b9dae121971317a2, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3759,7 +3758,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardManager: {fileID: 1806241592}
-  dimOverlay: {fileID: 0}
+  dimOverlay: {fileID: 311684356}
   isTutorialActive: 0
 --- !u!4 &1275872854
 Transform:
@@ -4369,7 +4368,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Zor g\xF6r\xFCn\xFCyor ama deneyece\u011Fim\n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b5eb0cc2289fab14284326eeb574c079, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 00e52c4a7055a194b9dae121971317a2, type: 2}
   m_sharedMaterial: {fileID: -6753723746149418804, guid: b5eb0cc2289fab14284326eeb574c079, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -4394,8 +4393,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 55
-  m_fontSizeBase: 55
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4435,7 +4434,7 @@ MonoBehaviour:
   m_margin: {x: 17.331787, y: 15.16404, z: 19.496964, w: 20.57835}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1539855167
@@ -4865,11 +4864,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1625905882}
-  m_Father: {fileID: 603174676}
+  m_Father: {fileID: 2023712215}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000015259, y: -184}
+  m_AnchoredPosition: {x: -26.000051, y: -244.32599}
   m_SizeDelta: {x: 271.572, y: 125.302}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1675309783
@@ -5702,18 +5701,19 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2023712212}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 603174676}
-  m_Father: {fileID: 614174213}
+  - {fileID: 1675309782}
+  m_Father: {fileID: 304518134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2248, y: 0}
+  m_AnchoredPosition: {x: 1574.1605, y: -576.8418}
+  m_SizeDelta: {x: 2248, y: 1222.3665}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2030559020
 GameObject:
