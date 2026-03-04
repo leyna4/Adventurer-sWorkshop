@@ -85,7 +85,7 @@ public class GameFlowManager : MonoBehaviour
     public TextMeshProUGUI coinText;
     private HashSet<int> rewardedLevels = new HashSet<int>();
 
-    // ?? Tutorial ??????????????????????????????????????????????????
+    
     [Header("Tutorial")]
     public TutorialManager tutorialManager;
 
@@ -106,12 +106,12 @@ public class GameFlowManager : MonoBehaviour
         LoadCustomer(currentLevel - 1);
         yield return new WaitForEndOfFrame();
 
-        // Önemli: Karakter sahnesi baþlamadan önce her þeyi hazýrla
+      
         UpdateGoalUI();
 
         yield return StartCoroutine(CustomerSequence());
 
-        // CustomerSequence bitti — Level 1'de tutorial baþlat
+        
         if (currentLevel == 1 && tutorialManager != null)
             tutorialManager.StartTutorial();
     }
@@ -120,19 +120,19 @@ public class GameFlowManager : MonoBehaviour
     {
         if (board == null || levels.Count == 0) return;
 
-        // Seviye sýnýr kontrolü
+        
         if (levelIndex - 1 >= levels.Count) levelIndex = 1;
 
         LevelData data = levels[levelIndex - 1];
         board.currentLevel = levelIndex;
 
-        // 1. Önce hedefleri BoardManager'a tanýmla
+        
         board.SetGoals(data.goals, data.moveLimit);
 
-        // 2. Board'u temizle ve yeniden oluþtur (Special Item'lar burada oluþur)
+       
         board.ResetBoardForNextLevel();
 
-        // 3. UI elemanlarýný (Goal Item'lar) oluþtur
+        
         SetupGoalUI();
     }
 
@@ -178,7 +178,7 @@ public class GameFlowManager : MonoBehaviour
     {
         playerAnswered = false;
 
-        // Panelleri gizle
+        
         match3Area.SetActive(false);
         specialPanel.SetActive(false);
         customerVisual.SetActive(true);
@@ -199,14 +199,14 @@ public class GameFlowManager : MonoBehaviour
 
         yield return new WaitUntil(() => playerAnswered);
 
-        // Sahne bitti, her þeyi geri getir
+        
         dialogueBox.SetActive(false);
         choiceButtons.SetActive(false);
 
         match3Area.SetActive(true);
-        specialPanel.SetActive(true); // Burasý Goal UI'nýn ana panelidir
+        specialPanel.SetActive(true); 
 
-        UpdateGoalUI(); // UI tazeleme
+        UpdateGoalUI(); 
     }
 
     public void OnPlayerChoice()
@@ -250,7 +250,7 @@ public class GameFlowManager : MonoBehaviour
 
     void SetupGoalUI()
     {
-        // Container'ý temizle
+        
         if (goalContainer != null)
         {
             foreach (Transform child in goalContainer) Destroy(child.gameObject);
@@ -258,7 +258,7 @@ public class GameFlowManager : MonoBehaviour
 
         activeGoals.Clear();
 
-        // BoardManager'daki güncel hedefleri UI'a dök
+       
         foreach (var goal in board.goals)
         {
             GoalItemUI ui = Instantiate(goalItemPrefab, goalContainer);
@@ -269,7 +269,7 @@ public class GameFlowManager : MonoBehaviour
 
     void Update()
     {
-        // Hedeflerin sayýlarýný anlýk takip et
+        
         if (activeGoals.Count > 0)
             foreach (var goalUI in activeGoals)
                 if (goalUI != null) goalUI.Refresh();

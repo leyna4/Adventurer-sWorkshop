@@ -5098,8 +5098,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0e00e22c2302c4c429576e0e04ff4834, type: 3}
   - {fileID: 21300000, guid: 5938bd5d018267a45aa0962f00fbabe7, type: 3}
   specialTileSprites:
-  - {fileID: 21300000, guid: eacf780d8cc908e4e814340733a2ebc0, type: 3}
-  - {fileID: 21300000, guid: a87daf7c2c8a4434c8d575f0954a5802, type: 3}
+  - {fileID: -7384539562503024270, guid: 056923e1136cd5c439e1855282b9c631, type: 3}
+  - {fileID: -8547868245468309599, guid: d00031c17728eda429dc62f896f551f4, type: 3}
   width: 7
   height: 7
   tilePrefab: {fileID: 1925396914389260733, guid: b071cbd8a3e1ee94891a740f1341cbab, type: 3}
@@ -5842,7 +5842,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: -207.24805, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &2030559023

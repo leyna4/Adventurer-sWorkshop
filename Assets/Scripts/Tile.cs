@@ -4,10 +4,10 @@ using UnityEngine.EventSystems;
 using System.Collections;
 
 public class Tile : MonoBehaviour,
-IPointerDownHandler,
-IBeginDragHandler,
-IDragHandler,
-IEndDragHandler
+    IPointerDownHandler,
+    IBeginDragHandler,
+    IDragHandler,
+    IEndDragHandler
 {
     public int tileType;
     public Image image;
@@ -26,8 +26,11 @@ IEndDragHandler
     public enum SpecialType { None, RowClear, ColumnClear }
     public SpecialType specialType = SpecialType.None;
 
-    public Sprite[] specialSprites;   // [0]=RowClear overlay, [1]=ColumnClear overlay
+    public Sprite[] specialSprites;   
     public Sprite[] tileSprites;
+
+   
+    public Image specialOverlay;
 
     private Coroutine pulseCoroutine = null;
 
@@ -41,8 +44,18 @@ IEndDragHandler
 
         if (iceOverlay != null)
             iceOverlay.raycastTarget = false;
+
+        if (specialOverlay == null)
+            specialOverlay = transform.Find("SpecialOverlay")?.GetComponent<Image>();
+
+        if (specialOverlay != null)
+        {
+            specialOverlay.raycastTarget = false;
+            specialOverlay.gameObject.SetActive(false);
+        }
     }
 
+    
     public void SetType(int type)
     {
         tileType = type;
@@ -51,75 +64,73 @@ IEndDragHandler
         if (tileSprites != null && type < tileSprites.Length)
             image.sprite = tileSprites[type];
 
-        // Special overlay varsa kapat (normal tile'da gözükmesin)
-        SetSpecialOverlayActive(false);
+        if (specialOverlay != null)
+            specialOverlay.gameObject.SetActive(false);
     }
 
-    // ?????????????????????????????????????????????????????????????????
-    // DÜZELTME: colorType parametresi ile rengi koruyarak special göster
-    // ?????????????????????????????????????????????????????????????????
+    
     public void SetSpecialType(SpecialType st, int colorType = -1)
     {
         specialType = st;
 
-        // Renk bilgisi verilmiþse güncelle
-        if (colorType >= 0)
-            tileType = colorType;
+        
+        if (colorType >= 0) tileType = colorType;
 
-        if (st == SpecialType.None)
-        {
-            // Normal tile görselini geri yükle
-            if (tileSprites != null && tileType < tileSprites.Length)
-                image.sprite = tileSprites[tileType];
-
-            SetSpecialOverlayActive(false);
-            return;
-        }
-
-        // 1. Base: Tile'ýn kendi renk sprite'ý
+        
         if (tileSprites != null && tileType < tileSprites.Length)
             image.sprite = tileSprites[tileType];
 
-        // 2. Üst katman: RowClear / ColumnClear sembolü
-        UpdateSpecialOverlay(st);
-    }
-
-    // Special sembolünü ayrý SpecialOverlay child Image üzerinden göster
-    // Bu sayede tile rengi korunur, sembol sadece üste biner
-    void UpdateSpecialOverlay(SpecialType st)
-    {
-        Transform overlayT = transform.Find("SpecialOverlay");
-
-        // SpecialOverlay yoksa fallback: direkt image.sprite'ý deðiþtir (eski davranýþ)
-        if (overlayT == null)
+        if (st == SpecialType.None)
         {
-            if (specialSprites == null) return;
-
-            if (st == SpecialType.RowClear && specialSprites.Length > 0 && specialSprites[0] != null)
-                image.sprite = specialSprites[0];
-            else if (st == SpecialType.ColumnClear && specialSprites.Length > 1 && specialSprites[1] != null)
-                image.sprite = specialSprites[1];
+            if (specialOverlay != null) specialOverlay.gameObject.SetActive(false);
             return;
         }
 
-        Image overlay = overlayT.GetComponent<Image>();
-        if (overlay == null) return;
+        
+        if (specialOverlay == null)
+            specialOverlay = CreateSpecialOverlay();
 
-        overlay.gameObject.SetActive(true);
-        overlay.raycastTarget = false;
-        overlay.transform.SetAsLastSibling();
+        if (specialOverlay == null) return;
 
-        if (st == SpecialType.RowClear && specialSprites != null && specialSprites.Length > 0 && specialSprites[0] != null)
-            overlay.sprite = specialSprites[0];
-        else if (st == SpecialType.ColumnClear && specialSprites != null && specialSprites.Length > 1 && specialSprites[1] != null)
-            overlay.sprite = specialSprites[1];
+        specialOverlay.gameObject.SetActive(true);
+        specialOverlay.transform.SetAsLastSibling();
+
+        if (st == SpecialType.RowClear && specialSprites != null &&
+            specialSprites.Length > 0 && specialSprites[0] != null)
+        {
+            specialOverlay.sprite = specialSprites[0];
+            specialOverlay.transform.localRotation = Quaternion.identity;
+        }
+        else if (st == SpecialType.ColumnClear && specialSprites != null &&
+                 specialSprites.Length > 1 && specialSprites[1] != null)
+        {
+            specialOverlay.sprite = specialSprites[1];
+            specialOverlay.transform.localRotation = Quaternion.identity;
+        }
+        else if (specialSprites != null && specialSprites.Length > 0 && specialSprites[0] != null)
+        {
+            
+            specialOverlay.sprite = specialSprites[0];
+            specialOverlay.transform.localRotation = (st == SpecialType.ColumnClear)
+                ? Quaternion.Euler(0, 0, 90f)
+                : Quaternion.identity;
+        }
     }
 
-    void SetSpecialOverlayActive(bool active)
+    Image CreateSpecialOverlay()
     {
-        Transform overlayT = transform.Find("SpecialOverlay");
-        if (overlayT != null)
-            overlayT.gameObject.SetActive(active);
+        GameObject go = new GameObject("SpecialOverlay");
+        go.transform.SetParent(transform, false);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        Image img = go.AddComponent<Image>();
+        img.raycastTarget = false;
+        img.color = Color.white;
+        go.transform.SetAsLastSibling();
+        return img;
     }
 
     public void SetIce(int hp)
@@ -151,7 +162,6 @@ IEndDragHandler
     {
         hasIce = false;
         iceHitPoints = 0;
-
         if (iceOverlay != null)
             iceOverlay.gameObject.SetActive(false);
     }
@@ -159,7 +169,6 @@ IEndDragHandler
     public void SetHighlight(bool highlight)
     {
         if (image == null) image = GetComponent<Image>();
-
         image.color = highlight ? Color.white : new Color(0.25f, 0.25f, 0.25f, 1f);
 
         if (iceOverlay != null)
@@ -193,7 +202,6 @@ IEndDragHandler
         Vector3 startScale = Vector3.one;
         Vector3 endScale = Vector3.one * 1.12f;
         float speed = 1.8f;
-
         while (true)
         {
             float t = 0;
@@ -214,7 +222,6 @@ IEndDragHandler
     }
 
     Vector2 dragStartPos;
-
     public void OnPointerDown(PointerEventData eventData) { }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -228,16 +235,12 @@ IEndDragHandler
     public void OnEndDrag(PointerEventData eventData)
     {
         if (board != null && board.inputLocked) return;
-
         Vector2 dir = eventData.position - dragStartPos;
         if (dir.magnitude < 50f) return;
-
         dir.Normalize();
         int tx = x, ty = y;
-
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y)) tx += dir.x > 0 ? 1 : -1;
         else ty += dir.y > 0 ? 1 : -1;
-
         if (board != null && tx >= 0 && tx < board.width && ty >= 0 && ty < board.height)
             board.SwapTiles(this, board.tiles[tx, ty]);
     }
@@ -247,7 +250,6 @@ IEndDragHandler
         StopPulse();
         float dur = 0.15f, elapsed = 0f;
         Vector3 start = transform.localScale;
-
         while (elapsed < dur)
         {
             elapsed += Time.deltaTime;
