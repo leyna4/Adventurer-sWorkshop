@@ -30,8 +30,11 @@ public class Tile : MonoBehaviour,
     public Sprite[] specialSprites;
     public Sprite[] tileSprites;
     public Image specialOverlay;
+    public Image selectionBorder;  // Inspector'da "SelectionBorder" child Image
 
     private Coroutine pulseCoroutine = null;
+    private Coroutine selectionCoroutine = null;
+    private static Tile currentSelected = null; // board genelinde tek seçim
     private Coroutine moveCoroutine = null;
     private Coroutine hintCoroutine = null;
 
@@ -57,6 +60,14 @@ public class Tile : MonoBehaviour,
         {
             specialOverlay.raycastTarget = false;
             specialOverlay.gameObject.SetActive(false);
+        }
+
+        if (selectionBorder == null)
+            selectionBorder = transform.Find("SelectionBorder")?.GetComponent<Image>();
+        if (selectionBorder != null)
+        {
+            selectionBorder.raycastTarget = false;
+            selectionBorder.gameObject.SetActive(false);
         }
     }
 
@@ -243,6 +254,7 @@ public class Tile : MonoBehaviour,
     {
         StopPulse();
         StopHint();
+        Deselect();
 
         // Patlama efektlerini HEMEN başlat (animasyonla eş zamanlı)
         SpawnParticles();
@@ -457,7 +469,60 @@ public class Tile : MonoBehaviour,
 
     // ── DRAG ─────────────────────────────────────────────────────────
     Vector2 dragStartPos;
-    public void OnPointerDown(PointerEventData eventData) { }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (board != null && board.inputLocked) return;
+        // Önceki seçimi kapat
+        if (currentSelected != null && currentSelected != this)
+            currentSelected.Deselect();
+        // Kendini seç
+        Select();
+    }
+
+    public void Select()
+    {
+        currentSelected = this;
+        if (selectionBorder == null) selectionBorder = CreateSelectionBorder();
+        if (selectionBorder != null)
+        {
+            selectionBorder.gameObject.SetActive(true);
+            selectionBorder.transform.SetAsLastSibling();
+            selectionBorder.transform.localRotation = Quaternion.identity;
+            selectionBorder.color = new Color(1f, 1f, 1f, 0.5f);
+        }
+    }
+
+    public void Deselect()
+    {
+        if (currentSelected == this) currentSelected = null;
+        if (selectionCoroutine != null) { StopCoroutine(selectionCoroutine); selectionCoroutine = null; }
+        if (selectionBorder != null)
+        {
+            selectionBorder.gameObject.SetActive(false);
+            selectionBorder.transform.localScale = Vector3.one;
+            selectionBorder.color = Color.white;
+        }
+    }
+
+    IEnumerator SelectionAnimation() { yield break; }
+
+    Image CreateSelectionBorder()
+    {
+        GameObject go = new GameObject("SelectionBorder");
+        go.transform.SetParent(transform, false);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        // Tile'dan biraz büyük
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = new Vector2(-4f, -4f);
+        rt.offsetMax = new Vector2(4f, 4f);
+        Image img = go.AddComponent<Image>();
+        img.raycastTarget = false;
+        img.color = new Color(1f, 1f, 1f, 0.9f);
+        go.transform.SetAsLastSibling();
+        return img;
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -470,6 +535,8 @@ public class Tile : MonoBehaviour,
     public void OnEndDrag(PointerEventData eventData)
     {
         if (board != null && board.inputLocked) return;
+        Deselect();
+        if (currentSelected != null) { currentSelected.Deselect(); }
         Vector2 dir = eventData.position - dragStartPos;
         if (dir.magnitude < 50f) return;
         dir.Normalize();

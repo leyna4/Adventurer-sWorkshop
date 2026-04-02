@@ -53,7 +53,7 @@ public class BoardManager : MonoBehaviour
     bool hintActive = false;
     List<Tile> hintTiles = new List<Tile>();
 
-    static readonly string[] feedbackMessages = { "Harika!", "Muthis!", "Super!", "Mukemmel!", "Enfes!" };
+    static readonly string[] feedbackMessages = { "Amazing!", "Awesome!", "Super!", "Excellent!", "Fantastic!" };
     int feedbackIndex = 0;
     Coroutine feedbackCoroutine = null;
 
