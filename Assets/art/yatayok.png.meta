@@ -172,7 +172,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      yatayok_0: -7384539562503024270
+      yatayok_1: 1490130225593258545
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

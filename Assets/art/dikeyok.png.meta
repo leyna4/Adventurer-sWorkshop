@@ -172,7 +172,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      dikeyok_0: -8547868245468309599
+      dikeyok_1: -7478842889361295428
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
